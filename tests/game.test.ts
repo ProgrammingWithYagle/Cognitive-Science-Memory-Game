@@ -12,10 +12,10 @@ function play(r: Room) {
   while (r.phase !== 'finished' && steps++ < 200) {
     if (r.phase === 'answer') {
       const questions = r.settings.mode === 'frenzy' ? [r.round.questions[r.currentQuestion]] : r.round.questions;
-      for (const p of r.players) r.answer(p.id, Object.fromEntries(questions.map(q => [q.id, q.correct])), r.phaseStart + 100);
+      for (const p of r.connectedPlayers) r.answer(p.id, Object.fromEntries(questions.map(q => [q.id, q.correct])), r.phaseStart + 100);
       if (r.phase === 'answer') deadline(r);
     } else if (r.phase === 'private') {
-      for (const p of r.players) { const shown = r.view(p.id, r.phaseStart).questions; const allowed = r.round.questions.filter(q => shown.some(s => s.id === q.id)); r.answer(p.id, Object.fromEntries(allowed.map(q => [q.id, q.correct])), r.phaseStart + 100); }
+      for (const p of r.connectedPlayers) { const shown = r.view(p.id, r.phaseStart).questions; const allowed = r.round.questions.filter(q => shown.some(s => s.id === q.id)); r.answer(p.id, Object.fromEntries(allowed.map(q => [q.id, q.correct])), r.phaseStart + 100); }
     } else if (r.phase === 'discuss') { const captain = r.captain()!; for (const q of r.round.questions) r.board(captain, q.id, q.correct); r.lock(captain, r.phaseStart + 100); }
     else deadline(r);
   }
@@ -76,7 +76,7 @@ describe('room lifecycle', () => {
   it('pauses cooperative play when a fragment owner leaves, even with two remaining players', () => {
     const r = room('team', 3); deadline(r); const missing = r.players[2]; r.disconnect(missing.id, r.phaseStart + 1);
     expect(r.phase).toBe('paused'); expect(() => r.next(r.hostId, r.phaseStart + 2)).toThrow(/reconnect/);
-    r.connect(missing.id, r.phaseStart + 3); r.next(r.hostId, r.phaseStart + 4); expect(r.phase).toBe('countdown');
+    r.connect(missing.id, r.phaseStart + 3); expect(r.phase).toBe('countdown');
   });
   it('restarts a fact round without repeating completed or future fact cards', () => {
     const r = room('rally'); r.rounds = generateRounds({ ...r.settings, rounds: 10 }, PACKS[0], 45); r.roundIndex = r.rounds.findIndex(x => x.family === 'facts');
@@ -87,9 +87,9 @@ describe('room lifecycle', () => {
   it('preserves completed scores through disconnect, host transfer, and restart', () => {
     const r = room('rally'); while (r.phase !== 'answer') deadline(r); for (const p of r.players) r.answer(p.id, Object.fromEntries(r.round.questions.map(q => [q.id, q.correct])), r.phaseStart + 100);
     expect(r.players[0].score).toBe(600); deadline(r); const original = r.hostId, now = r.phaseStart;
-    r.disconnect(original, now + 1); expect(r.phase).toBe('paused'); r.tick(now + 15002); expect(r.hostId).not.toBe(original);
+    r.disconnect(original, now + 1); expect(r.phase).toBe('countdown'); r.tick(now + 15002); expect(r.hostId).not.toBe(original);
     const restored = Room.restore(r.serialize(), now + 16000); expect(restored.players[0].score).toBe(600); expect(restored.phase).toBe('paused');
-    for (const p of restored.players) restored.connect(p.id, now + 16000); restored.next(restored.hostId, now + 16001); expect(restored.phase).toBe('countdown'); expect(restored.players[0].score).toBe(600); expect(restored.history).toHaveLength(1);
+    for (const p of restored.players) restored.connect(p.id, now + 16000); expect(restored.phase).toBe('countdown'); expect(restored.players[0].score).toBe(600); expect(restored.history).toHaveLength(1);
   });
   it('requires two real players for scored play, supports unscored practice and late spectators', () => {
     const r = new Room('ABC234', 1000); const host = r.add('Host', 'player', 1000); expect(() => r.start(host.id, 1100)).toThrow(/two/);

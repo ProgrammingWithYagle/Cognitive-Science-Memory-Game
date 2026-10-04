@@ -13,6 +13,7 @@ export class Room {
   revision = 0; hostId = ''; settings: Settings = { ...DEFAULT_SETTINGS }; phase: Phase = 'lobby';
   phaseStart = 0; deadline: number | null = null; roundIndex = 0; currentQuestion = 0;
   members: Member[] = []; matchIds: string[] = []; rounds: Round[] = []; pack: ContentPack = PACKS[0];
+  roundPlayerIds: string[] = [];
   records: Record<string, Answers> = {}; teamBoard: Record<string, string> = {}; proposals: Proposal[] = [];
   history: History[] = []; teamScore = 0; teamCorrect = 0; practice = false;
   chat: { id: string; name: string; text: string }[] = []; pauseReason?: string; idleSince: number | null = null;
@@ -20,9 +21,9 @@ export class Room {
   change() { this.revision++; }
   get round() { return this.rounds[this.roundIndex]; }
   get players() { return this.members.filter(p => this.matchIds.includes(p.id)); }
-  get connectedPlayers() { return this.players.filter(p => p.connected); }
+  get connectedPlayers() { return this.players.filter(p => p.connected && p.role === 'player'); }
   add(name: string, role: Role, now: number) {
-    if (this.members.length >= 24) throw new Error('This room has reached its spectator limit.');
+    if (this.members.filter(p => p.token && (p.connected || p.disconnectedAt === null || now - p.disconnectedAt < 120000)).length >= 24) throw new Error('This room has reached its spectator limit.');
     if (role === 'player') {
       if (this.phase !== 'lobby') role = 'spectator';
       else if (this.members.filter(p => p.role === 'player').length >= 8) throw new Error('This room is full: eight player seats. You can join as a display.');
@@ -40,21 +41,24 @@ export class Room {
   }
   member(id: string) { const p = this.members.find(x => x.id === id); if (!p) throw new Error('Join a room first.'); return p; }
   requireHost(id: string) { if (id !== this.hostId) throw new Error('Only the host can do that.'); }
-  connect(id: string, now: number) { const p = this.member(id); p.connected = true; p.disconnectedAt = null; this.idleSince = null; this.change(); }
+  connect(id: string, now: number) { const p = this.member(id); p.connected = true; p.disconnectedAt = null; this.idleSince = null; this.recover(now); this.change(); }
   disconnect(id: string, now: number) {
     const p = this.member(id); p.connected = false; p.disconnectedAt = now;
     if (!this.members.some(m => m.connected)) this.idleSince = now;
-    if (activePhases.includes(this.phase) && this.connectedPlayers.length < (this.practice ? 1 : 2)) this.pause('Waiting for two connected players. The unfinished round will restart.', now);
-    else if (this.settings.mode === 'team' && activePhases.includes(this.phase) && this.matchIds.includes(id)) this.pause('A player with a private fragment disconnected. Reconnect before restarting this round.', now);
+    if (activePhases.includes(this.phase) && !this.connectedPlayers.length) this.pause('Waiting for a player to reconnect. The unfinished round restarts automatically.', now);
+    else if (this.settings.mode === 'team' && activePhases.includes(this.phase) && this.roundPlayerIds.includes(id)) this.pause('A fragment owner disconnected. This round restarts automatically on reconnect, or after the reserved seat expires.', now);
     this.change();
   }
   leave(id: string, now: number) {
-    this.disconnect(id, now);
     const p = this.member(id); p.token = ''; p.role = 'spectator';
+    this.disconnect(id, now);
     if (this.phase === 'lobby') {
       this.members = this.members.filter(m => m.id !== id);
       if (this.hostId === id) this.hostId = this.members.filter(m => m.connected && m.role !== 'display').sort((a, b) => a.joinedAt - b.joinedAt)[0]?.id ?? '';
     }
+    if (this.hostId === id) this.hostId = this.members.filter(m => m.connected && m.role !== 'display').sort((a, b) => a.joinedAt - b.joinedAt)[0]?.id ?? '';
+    this.recover(now);
+    if (this.phase === 'answer' && this.settings.mode === 'rally' && this.connectedPlayers.length && this.connectedPlayers.every(m => this.records[m.id]?.committed)) this.advance(now);
     this.change();
   }
   pause(reason: string, now: number) { this.pauseReason = reason; this.phase = 'paused'; this.phaseStart = now; this.deadline = null; this.change(); }
@@ -64,7 +68,10 @@ export class Room {
       const successor = this.members.filter(p => p.connected && (p.role === 'player' || p.role === 'facilitator')).sort((a, b) => a.joinedAt - b.joinedAt)[0];
       if (successor) { this.hostId = successor.id; this.change(); }
     }
-    for (const p of this.members) if (!p.connected && p.disconnectedAt !== null && now - p.disconnectedAt > 120000 && p.role === 'player') { p.role = 'spectator'; this.change(); }
+    for (const p of this.members) if (!p.connected && p.disconnectedAt !== null && now - p.disconnectedAt >= 120000 && p.role === 'player') { p.role = 'spectator'; this.change(); }
+    const retained = this.members.filter(p => p.connected || this.matchIds.includes(p.id) || p.disconnectedAt === null || now - p.disconnectedAt < 120000);
+    if (retained.length !== this.members.length) { this.members = retained; this.change(); }
+    this.recover(now);
     if (this.phase === 'lobby' || this.phase === 'finished' || this.phase === 'paused') return;
     let safety = 0;
     while (this.deadline !== null && now >= this.deadline && safety++ < 200) this.advance(this.deadline);
@@ -79,7 +86,12 @@ export class Room {
     this.matchIds = players.map(p => p.id); this.practice = practice; this.history = []; this.teamCorrect = 0; this.teamScore = 0;
     this.members.forEach(p => { p.score = 0; p.correct = 0; }); this.roundIndex = 0; this.beginRound(now);
   }
-  beginRound(now: number) { this.records = {}; this.teamBoard = {}; this.proposals = []; this.currentQuestion = 0; this.pauseReason = undefined; this.setPhase('countdown', now, 3000); }
+  beginRound(now: number) { this.roundPlayerIds = this.connectedPlayers.map(p => p.id); this.records = {}; this.teamBoard = {}; this.proposals = []; this.currentQuestion = 0; this.pauseReason = undefined; this.setPhase('countdown', now, 3000); if (!this.roundPlayerIds.length) this.pause('Waiting for a player to reconnect. Completed scores are saved.', now); }
+  recover(now: number) {
+    if (this.phase !== 'paused' || !this.connectedPlayers.length) return;
+    if (this.settings.mode === 'team' && this.roundPlayerIds.some(id => { const p = this.members.find(m => m.id === id); return p?.role === 'player' && !p.connected; })) return;
+    this.restartRound(now);
+  }
   advance(now: number) {
     if (this.phase === 'countdown') {
       if (this.round.family === 'focus') this.beginAnswer(now);
@@ -95,7 +107,7 @@ export class Room {
     else if (this.phase === 'reveal') this.nextRound(now);
   }
   beginAnswer(now: number) { this.setPhase('answer', now, duration(this.settings, this.settings.mode === 'frenzy' ? 8 : 45)); }
-  exposureFor(id: string) { return exposure(this.round, this.matchIds.indexOf(id), this.matchIds.length); }
+  exposureFor(id: string) { const index = this.roundPlayerIds.indexOf(id); return index < 0 ? [] : exposure(this.round, index, this.roundPlayerIds.length); }
   answer(id: string, picks: Record<string, string>, now: number) {
     if (!this.matchIds.includes(id) || !this.member(id).connected || this.member(id).role !== 'player') throw new Error('Only active players can answer.');
     if (this.phase !== 'answer' && this.phase !== 'private') throw new Error('The answer window is closed.');
@@ -135,15 +147,18 @@ export class Room {
   }
   nextRound(now: number) { if (this.roundIndex + 1 >= this.rounds.length) this.setPhase('finished', now, null); else { this.roundIndex++; this.beginRound(now); } }
   next(id: string, now: number) { this.requireHost(id); if (this.phase === 'reveal') this.nextRound(now); else if (this.phase === 'paused') {
-    if (this.connectedPlayers.length < (this.practice ? 1 : 2)) throw new Error('Wait for two connected players.');
-    if (this.settings.mode === 'team' && this.players.some(p => !p.connected || p.role !== 'player')) throw new Error('All players must reconnect to restore the private fragments. You can also return to the lobby.');
+    if (!this.connectedPlayers.length) throw new Error('Wait for a player to reconnect.');
+    if (this.settings.mode === 'team' && this.roundPlayerIds.some(id => { const p = this.member(id); return p.role === 'player' && !p.connected; })) throw new Error('Wait for the fragment owner to reconnect, leave, or expire.');
+    this.restartRound(now);
+  } else throw new Error('The host can advance after the reveal.'); }
+  restartRound(now: number) {
     const old = this.round;
     const reserved = new Set(this.rounds.filter((_, i) => i !== this.roundIndex).filter(r => r.family === 'facts').flatMap(r => r.questions.map(q => q.text)));
     const available = this.pack.facts.filter(f => !reserved.has(f.cue));
     const fresh = generateRounds(this.settings, { ...this.pack, facts: available }, randomBytes(4).readUInt32LE(), false, [old.family])[0];
     if (old.family === 'sequence' && fresh.study && old.study) { fresh.study.grouped = old.study.grouped; if (this.settings.mode !== 'team') fresh.condition = old.condition; }
     this.rounds[this.roundIndex] = fresh; this.beginRound(now);
-  } else throw new Error('The host can advance after the reveal.'); }
+  }
   lobby(id: string, now: number) {
     this.requireHost(id); if (this.phase !== 'finished' && this.phase !== 'paused') throw new Error('Finish the match before returning to the lobby.');
     this.phase = 'lobby'; this.phaseStart = now; this.deadline = null; this.rounds = []; this.history = []; this.matchIds = []; this.practice = false; this.records = {}; this.proposals = []; this.teamBoard = {}; this.chat = [];
@@ -207,8 +222,10 @@ export class Room {
   static restore(text: string, now: number) {
     const data = JSON.parse(text); if (typeof data.code !== 'string' || !/^[A-Z2-9]{6}$/.test(data.code) || !Array.isArray(data.members) || !data.settings) throw new Error('Invalid room checkpoint.');
     const room = Object.assign(new Room(data.code, now), data) as Room;
+    room.roundPlayerIds = data.roundPlayerIds ?? data.matchIds ?? [];
     room.members.forEach(p => { p.connected = false; p.disconnectedAt = now; }); room.chat = []; room.idleSince = now;
-    if (!['lobby', 'finished'].includes(room.phase)) room.pause('Server restarted. Rejoin and restart the unfinished round.', now);
+    if (room.phase === 'reveal') room.setPhase('reveal', now, room.settings.classroom ? null : 12000);
+    else if (!['lobby', 'finished'].includes(room.phase)) room.pause('Server restarted. The unfinished round restarts automatically when players rejoin.', now);
     room.change(); return room;
   }
 }
