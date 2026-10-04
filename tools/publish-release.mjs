@@ -6,7 +6,7 @@ import path from 'node:path';
 const repository = 'ProgrammingWithYagle/Cognitive-Science-Memory-Game';
 const base = `https://api.github.com/repos/${repository}`;
 const mode = process.argv[2] ?? 'check';
-if (!['check', 'release'].includes(mode)) throw new Error('Use check or release.');
+if (!['check', 'release', 'pr', 'checks'].includes(mode)) throw new Error('Use check, release, pr, or checks.');
 const credentialOutput = execFileSync('git', ['credential', 'fill'], { input: 'protocol=https\nhost=github.com\npath=ProgrammingWithYagle/Cognitive-Science-Memory-Game.git\n\n', encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
 const credential = Object.fromEntries(credentialOutput.trim().split(/\r?\n/).map(line => { const at = line.indexOf('='); return [line.slice(0, at), line.slice(at + 1)]; }));
 if (!credential.password) throw new Error('No existing GitHub credential is available.');
@@ -20,7 +20,17 @@ async function api(url, options = {}) {
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const remote = await api(`${base}/branches/codex%2Fmind-mosaic`);
 if (remote.commit.sha !== commit) throw new Error('Push the current commit before publishing.');
-if (mode === 'check') { console.log(JSON.stringify({ authenticatedRepository: remote.name, sourceCommitMatches: true, commit })); process.exit(0); }
+if (mode === 'check') console.log(JSON.stringify({ authenticatedRepository: remote.name, sourceCommitMatches: true, commit }));
+else if (mode === 'checks') {
+  const runs = await api(`${base}/actions/runs?head_sha=${commit}&per_page=10`);
+  console.log(JSON.stringify(runs.workflow_runs.map(r => ({ name: r.name, status: r.status, conclusion: r.conclusion, url: r.html_url })), null, 2));
+} else if (mode === 'pr') {
+  const existing = await api(`${base}/pulls?state=open&head=ProgrammingWithYagle:codex/mind-mosaic`);
+  const body = await readFile('docs/PR_DESCRIPTION.md', 'utf8');
+  const pr = existing[0] ?? await api(`${base}/pulls`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Build Mind Mosaic playable local core for 2–8 players', head: 'codex/mind-mosaic', base: 'main', body, draft: false }) });
+  console.log(JSON.stringify({ url: pr.html_url, number: pr.number, state: pr.state, head: pr.head.sha }));
+} else await publish();
+async function publish() {
 const notes = await readFile('docs/RELEASE_NOTES_0.1.0.md', 'utf8');
 const releases = await api(`${base}/releases?per_page=30`);
 let release = releases.find(r => r.tag_name === 'v0.1.0');
@@ -38,3 +48,4 @@ for (const name of names) {
 release = await api(`${base}/releases/${release.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ draft: false, prerelease: true, body: notes }) });
 const report = { release: release.html_url, commit, assets: uploaded, prerelease: release.prerelease, published: !release.draft };
 await writeFile('artifacts/local/publication.json', JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report, null, 2));
+}
