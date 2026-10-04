@@ -1,0 +1,10 @@
+{
+  "health": {
+    "ok": true,
+    "version": "0.1.0",
+    "rooms": 0
+  },
+  "frontend": true,
+  "port": 56276,
+  "electron": "44.5.1"
+}
