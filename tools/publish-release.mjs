@@ -20,7 +20,14 @@ async function api(url, options = {}) {
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const remote = await api(`${base}/branches/codex%2Fmind-mosaic`);
 if (remote.commit.sha !== commit) throw new Error('Push the current commit before publishing.');
-if (mode === 'check') console.log(JSON.stringify({ authenticatedRepository: remote.name, sourceCommitMatches: true, commit }));
+if (mode === 'check') {
+  console.log(JSON.stringify({ authenticatedRepository: remote.name, sourceCommitMatches: true, commit }));
+  const listed = await api(`${base}/releases?per_page=30`), published = listed.find(r => r.tag_name === 'v0.1.0' && !r.draft);
+  if (published) {
+    const report = { release: published.html_url, tag: published.tag_name, prerelease: published.prerelease, published: true, assets: published.assets.map(a => ({ name: a.name, bytes: a.size, digest: a.digest, url: a.browser_download_url })) };
+    await writeFile('artifacts/local/publication.json', JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report, null, 2));
+  }
+}
 else if (mode === 'checks') {
   const runs = await api(`${base}/actions/runs?head_sha=${commit}&per_page=10`);
   console.log(JSON.stringify(runs.workflow_runs.map(r => ({ name: r.name, status: r.status, conclusion: r.conclusion, url: r.html_url })), null, 2));
@@ -46,6 +53,7 @@ for (const name of names) {
   uploaded.push({ name, bytes: asset.size, digest: asset.digest, url: asset.browser_download_url }); console.log(`Verified upload: ${name}`);
 }
 release = await api(`${base}/releases/${release.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ draft: false, prerelease: true, body: notes }) });
+for (const asset of uploaded) asset.url = release.assets.find(a => a.name === asset.name)?.browser_download_url ?? asset.url;
 const report = { release: release.html_url, commit, assets: uploaded, prerelease: release.prerelease, published: !release.draft };
 await writeFile('artifacts/local/publication.json', JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report, null, 2));
 }
