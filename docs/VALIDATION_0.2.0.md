@@ -1,6 +1,6 @@
 # v0.2.0 validation and remaining checks
 
-Local validation on Windows x64, October 4–5, 2026. Evidence distinguishes synthetic checks from human playtests.
+Validation on Windows x64 and the public Render preview, October 4–6, 2026. Evidence distinguishes synthetic checks from human playtests.
 
 - **188 automated cases pass**. Full matches cover all three modes, all five difficulties and every player count 2–8; score totals and ties, private fragments, captain/host restrictions, duplicate/late answers, explicit Leave and reconnects across phases, seat expiry, checkpoint restores, spectator churn and eight real Socket.IO clients. Attention tests cover 100 seeds each for arrow location/direction conflict and Stroop word/ink conflict.
 - Type checking and production browser/server/runtime builds pass. The optional LiveKit browser chunk is about 518 KB before compression and loaded only for voice; the PDF worker is loaded only for PDF reading. The build reports a chunk-size advisory for LiveKit.
