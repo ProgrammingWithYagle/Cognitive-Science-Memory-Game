@@ -1,0 +1,21 @@
+{
+  "school": "Yale University",
+  "url": "https://catalog.yale.edu/ycps/courses/cgsc/",
+  "checked": "2026-10-04",
+  "titles": [
+    "CGSC 274b and CGSC 2740b / NSCI 3610b / PSYC 2610b, Algorithms of the Mind Staff",
+    "CGSC 1100a / PSYC 1300a, Introduction to Cognitive Science Brian Scholl",
+    "CGSC 1390a / PSYC 1390a, Mental Lives of Babies and Animals Nicolò Cesana-Arlotti",
+    "CGSC 2160b / CGSC 216 and CGSC 2160b / LING 1160b / PSYC 116 / PSYC 1316b, Cognitive Science of Language Athulya Aravind",
+    "CGSC 2430a / CGSC 243 / LING 2430a, Dynamics of Speech Jason Shaw",
+    "CGSC 2750b / LING 2750b / PHIL 2280b, Pragmatics Simon Charlow",
+    "CGSC 3240a / NSCI 3230a / PSYC 3240a, Human Neuropsychology Randolph Helfrich",
+    "CGSC 3380a / NSCI 3380a / PSYC 3380a, Minds, Brains, and Machines Julian Jara-Ettinger",
+    "CGSC 3550a / PSYC 3550a, Inside the Hive Mind: The Psychology of Group Life Yarrow Dunham",
+    "CGSC 3610a / LING 3610a / PSYC 163 / PSYC 3470a, Language Acquisition Athulya Aravind",
+    "CGSC 3630a / CGSC 363 / LING 3630a, Computational Models of Syntax Robert Frank",
+    "CGSC 4800a, Senior Non-Empirical Project I Isaac Davis",
+    "CGSC 4810a, Senior Non-Empirical Project II Isaac Davis",
+    "CGSC 4900a, Senior Empirical Project I Isaac Davis"
+  ]
+}

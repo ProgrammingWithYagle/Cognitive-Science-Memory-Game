@@ -1,12 +1,13 @@
 param([int]$Port = 4173)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$version = (Get-Content -LiteralPath (Join-Path $projectRoot 'package.json') -Raw | ConvertFrom-Json).version
 $url = "http://localhost:$Port"
 $healthOptions = @{ Uri = "http://127.0.0.1:$Port/api/health"; TimeoutSec = 2 }
 if ((Get-Command Invoke-RestMethod).Parameters.ContainsKey('NoProxy')) { $healthOptions.NoProxy = $true }
 try {
   $health = Invoke-RestMethod @healthOptions
-  if ($health.version -eq '0.1.0' -and $health.ok) { Write-Output "Mind Mosaic is already running: $url"; exit 0 }
+  if ($health.version -eq $version -and $health.ok) { Write-Output "Mind Mosaic is already running: $url"; exit 0 }
 } catch { }
 $logDirectory = Join-Path $projectRoot 'artifacts/local'
 New-Item -ItemType Directory -Force -Path $logDirectory | Out-Null

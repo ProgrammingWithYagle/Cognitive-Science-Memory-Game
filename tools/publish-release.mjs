@@ -1,8 +1,10 @@
-// Publishes only this repository's reviewed v0.1.0 assets. Credentials remain in memory.
+// Publishes this repository's checked versioned assets. Credentials remain in memory.
 import { execFileSync } from 'node:child_process';
 import { readFile, stat, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+const {version}=JSON.parse(await readFile('package.json','utf8'));
+const tag='v'+version;
 const repository = 'ProgrammingWithYagle/Cognitive-Science-Memory-Game';
 const base = `https://api.github.com/repos/${repository}`;
 const mode = process.argv[2] ?? 'check';
@@ -22,7 +24,7 @@ const remote = await api(`${base}/branches/codex%2Fmind-mosaic`);
 if (remote.commit.sha !== commit) throw new Error('Push the current commit before publishing.');
 if (mode === 'check') {
   console.log(JSON.stringify({ authenticatedRepository: remote.name, sourceCommitMatches: true, commit }));
-  const listed = await api(`${base}/releases?per_page=30`), published = listed.find(r => r.tag_name === 'v0.1.0' && !r.draft);
+  const listed = await api(`${base}/releases?per_page=30`), published = listed.find(r => r.tag_name === tag && !r.draft);
   if (published) {
     const report = { release: published.html_url, tag: published.tag_name, prerelease: published.prerelease, published: true, assets: published.assets.map(a => ({ name: a.name, bytes: a.size, digest: a.digest, url: a.browser_download_url })) };
     await writeFile('artifacts/local/publication.json', JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report, null, 2));
@@ -34,18 +36,21 @@ else if (mode === 'checks') {
 } else if (mode === 'pr') {
   const existing = await api(`${base}/pulls?state=open&head=ProgrammingWithYagle:codex/mind-mosaic`);
   const body = await readFile('docs/PR_DESCRIPTION.md', 'utf8');
-  const pr = existing[0] ?? await api(`${base}/pulls`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Build Mind Mosaic playable local core for 2–8 players', head: 'codex/mind-mosaic', base: 'main', body, draft: false }) });
+  const title = 'Fix interrupted matches and add course studio, voice and attention playtests';
+  let pr = existing[0];
+  if (!pr) pr = await api(`${base}/pulls`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, head: 'codex/mind-mosaic', base: 'main', body, draft: false }) });
+  else if (pr.body !== body || pr.title !== title) pr = await api(`${base}/pulls/${pr.number}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, body }) });
   console.log(JSON.stringify({ url: pr.html_url, number: pr.number, state: pr.state, head: pr.head.sha }));
 } else await publish();
 async function publish() {
-const notes = await readFile('docs/RELEASE_NOTES_0.1.0.md', 'utf8');
+const notes = await readFile('docs/RELEASE_NOTES_'+version+'.md', 'utf8');
 const releases = await api(`${base}/releases?per_page=30`);
-let release = releases.find(r => r.tag_name === 'v0.1.0');
-if (!release) release = await api(`${base}/releases`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tag_name: 'v0.1.0', target_commitish: commit, name: 'Mind Mosaic 0.1.0 — playable local core', body: notes, draft: true, prerelease: true }) });
-const names = ['Mind-Mosaic-0.1.0-Windows-Portable.exe', 'Mind-Mosaic-0.1.0-Windows-Portable.zip', 'SHA256SUMS.txt'];
+let release = releases.find(r => r.tag_name === tag);
+if (!release) release = await api(`${base}/releases`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tag_name: tag, target_commitish: commit, name: 'Mind Mosaic '+version+' — courses and reliable party play', body: notes, draft: true, prerelease: true }) });
+const names = [`Mind-Mosaic-${version}-Windows-Portable.exe`, `Mind-Mosaic-${version}-Windows-Portable.zip`, 'SHA256SUMS.txt'];
 const uploaded = [];
 for (const name of names) {
-  const filename = path.join('releases/v0.1.0', name), buffer = await readFile(filename), digest = 'sha256:' + createHash('sha256').update(buffer).digest('hex');
+  const filename = path.join('releases',tag, name), buffer = await readFile(filename), digest = 'sha256:' + createHash('sha256').update(buffer).digest('hex');
   let asset = release.assets.find(a => a.name === name);
   if (asset) { if (asset.size !== (await stat(filename)).size || asset.digest !== digest) throw new Error(`Existing asset ${name} differs; refusing to overwrite it.`); }
   else { const url = new URL(release.upload_url.split('{')[0]); url.searchParams.set('name', name); asset = await api(url.href, { method: 'POST', headers: { 'Content-Type': name.endsWith('.zip') ? 'application/zip' : name.endsWith('.exe') ? 'application/octet-stream' : 'text/plain', 'Content-Length': String(buffer.length) }, body: buffer }); }

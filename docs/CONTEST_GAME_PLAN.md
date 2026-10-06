@@ -1,6 +1,6 @@
 # Mind Mosaic: approved game and contest delivery plan
 
-Status: approved for implementation by the user on October 4, 2026. The v0.1.0 local core is implemented; see CORE_BUILD.md for its delivered scope and validation. Full contest launch work remains. The calendar below is a planning reference, not a required waiting period; subsequent work follows playtest findings.
+Status: approved for implementation by the user on October 4, 2026. This records the original plan. User-requested v0.2.0 follow-ups add Baby/Easy/Normal/Hard/Insane, manual question navigation, arrow-location answers and attention rounds in every mode, larger course authoring, optional voice and AI. See VALIDATION_0.2.0.md for current scope/evidence. Full contest launch work remains. The calendar is a planning reference, not a waiting requirement.
 
 ## 1. Product and contest target
 

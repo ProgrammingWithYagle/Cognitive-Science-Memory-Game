@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "version": "0.2.0",
+  "checkedAt": "2026-10-06T03:37:53.568Z",
+  "url": "https://mind-mosaic-jsjx.onrender.com",
+  "initialPlayers": 8,
+  "roundsCompleted": 4,
+  "families": [
+    "sequence",
+    "scene",
+    "focus",
+    "facts"
+  ],
+  "departureAndReturn": true,
+  "revokedSessionRejected": true,
+  "connectionResume": true,
+  "elapsedSeconds": 84.18,
+  "acknowledgementMs": {
+    "p50": 44.96,
+    "p95": 114.44,
+    "maximum": 139.12
+  },
+  "limitations": "Eight synthetic clients from one Windows machine to the public Render preview. Does not verify human enjoyment, real phones, microphone audio or multiple independent networks."
+}

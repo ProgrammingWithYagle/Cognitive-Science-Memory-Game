@@ -1,15 +1,17 @@
 {
   "passed": true,
+  "version": "0.2.0",
+  "checkedAt": "2026-10-06T03:23:25.948Z",
   "test": "10 simultaneous rooms, 8 WebSocket clients each; complete matches, disk checkpoints, reconnects, rematches",
   "activeClients": 80,
   "rooms": 10,
   "matchRounds": 4,
   "commands": 1064,
-  "elapsedSeconds": 3.71,
+  "elapsedSeconds": 4.53,
   "acknowledgementMs": {
-    "median": 11.65,
-    "p95": 25.39,
-    "maximum": 46.42
+    "median": 12.28,
+    "p95": 44.14,
+    "maximum": 86.05
   },
   "limitations": "One Windows machine, accelerated game clock. This is a burst smoke test, not a 30-minute soak, WAN latency test, or eight-person fun/voice test."
 }

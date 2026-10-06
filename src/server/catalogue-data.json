@@ -1,0 +1,1194 @@
+[
+  {
+    "id": "cwru101",
+    "school": "Case Western Reserve University",
+    "code": "COGS 101",
+    "title": "Introduction to Cognitive Science",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "cwru101"
+  },
+  {
+    "id": "cwru102",
+    "school": "Case Western Reserve University",
+    "code": "COGS 102",
+    "title": "Introduction to Cognitive Neuroscience",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "cwru102"
+  },
+  {
+    "id": "cwru201",
+    "school": "Case Western Reserve University",
+    "code": "COGS 201",
+    "title": "Human Cognition in Evolution and Development",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["development", "evolution"],
+    "packId": "cwru201"
+  },
+  {
+    "id": "cwru202",
+    "school": "Case Western Reserve University",
+    "code": "COGS 202",
+    "title": "Cognition and Culture",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["social", "language"],
+    "packId": "cwru202"
+  },
+  {
+    "id": "cwru205",
+    "school": "Case Western Reserve University",
+    "code": "COGS 205",
+    "title": "Cognition and Design",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["perception", "reasoning", "research"],
+    "packId": "cwru205"
+  },
+  {
+    "id": "cwru215",
+    "school": "Case Western Reserve University",
+    "code": "COGS 215",
+    "title": "Words and Mind",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "cwru215"
+  },
+  {
+    "id": "cwru222",
+    "school": "Case Western Reserve University",
+    "code": "COGS 222",
+    "title": "Embodied Writing and Communication",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru250",
+    "school": "Case Western Reserve University",
+    "code": "COGS 250",
+    "title": "Responsible AI: Cultivating a Just and Sustainable Socio-technical Future through Data Citizenship",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing", "research"],
+    "packId": "cwru250"
+  },
+  {
+    "id": "cwru251",
+    "school": "Case Western Reserve University",
+    "code": "COGS 251",
+    "title": "Cognition and Immersion: From Gaming to AR/VR",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["perception"],
+    "packId": "cwru251"
+  },
+  {
+    "id": "cwru301",
+    "school": "Case Western Reserve University",
+    "code": "COGS 301",
+    "title": "Special Topics in Cognitive Science",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru303",
+    "school": "Case Western Reserve University",
+    "code": "COGS 303",
+    "title": "Applied Cognitive Science AI",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "cwru303"
+  },
+  {
+    "id": "cwru305",
+    "school": "Case Western Reserve University",
+    "code": "COGS 305",
+    "title": "Social Cognition and the Brain",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["social", "neuro"],
+    "packId": "cwru305"
+  },
+  {
+    "id": "cwru306",
+    "school": "Case Western Reserve University",
+    "code": "COGS 306",
+    "title": "Theory of Cognitive Linguistics I",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "cwru306"
+  },
+  {
+    "id": "cwru307",
+    "school": "Case Western Reserve University",
+    "code": "COGS 307",
+    "title": "Cog Linguistics Theory II",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "cwru307"
+  },
+  {
+    "id": "cwru308",
+    "school": "Case Western Reserve University",
+    "code": "COGS 308",
+    "title": "Advanced Research Workshop I",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["research"],
+    "packId": "cwru308"
+  },
+  {
+    "id": "cwru309",
+    "school": "Case Western Reserve University",
+    "code": "COGS 309",
+    "title": "Advanced Research Workshop II",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["research"],
+    "packId": "cwru309"
+  },
+  {
+    "id": "cwru311",
+    "school": "Case Western Reserve University",
+    "code": "COGS 311",
+    "title": "Mind and Media",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["social", "perception"],
+    "packId": "cwru311"
+  },
+  {
+    "id": "cwru312",
+    "school": "Case Western Reserve University",
+    "code": "COGS 312",
+    "title": "Second Language Acquisition",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language", "development"],
+    "packId": "cwru312"
+  },
+  {
+    "id": "cwru315",
+    "school": "Case Western Reserve University",
+    "code": "COGS 315",
+    "title": "Artificial and Natural Intelligence",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing", "intro"],
+    "packId": "cwru315"
+  },
+  {
+    "id": "cwru316",
+    "school": "Case Western Reserve University",
+    "code": "COGS 316",
+    "title": "Decision-Making",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["reasoning", "research"],
+    "packId": "cwru316"
+  },
+  {
+    "id": "cwru317",
+    "school": "Case Western Reserve University",
+    "code": "COGS 317",
+    "title": "Cognitive Diversity and Commonality",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["social", "development"],
+    "packId": "cwru317"
+  },
+  {
+    "id": "cwru318",
+    "school": "Case Western Reserve University",
+    "code": "COGS 318",
+    "title": "Music, Mind, and Medicine",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru319",
+    "school": "Case Western Reserve University",
+    "code": "COGS 319",
+    "title": "Elements of Surprise",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["reasoning", "perception"],
+    "packId": "cwru319"
+  },
+  {
+    "id": "cwru322",
+    "school": "Case Western Reserve University",
+    "code": "COGS 322",
+    "title": "Human Learning and the Brain",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["memory", "learning"],
+    "packId": "cwru322"
+  },
+  {
+    "id": "cwru325",
+    "school": "Case Western Reserve University",
+    "code": "COGS 325",
+    "title": "Cognitive Approaches to Literature",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru327",
+    "school": "Case Western Reserve University",
+    "code": "COGS 327",
+    "title": "Gesture in Cognition and Communication",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language", "perception"],
+    "packId": "cwru327"
+  },
+  {
+    "id": "cwru330",
+    "school": "Case Western Reserve University",
+    "code": "COGS 330",
+    "title": "Cognition and Computation",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "cwru330"
+  },
+  {
+    "id": "cwru331",
+    "school": "Case Western Reserve University",
+    "code": "COGS 331",
+    "title": "Introduction to Applied Linguistics",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "cwru331"
+  },
+  {
+    "id": "cwru335",
+    "school": "Case Western Reserve University",
+    "code": "COGS 335",
+    "title": "Japanese Linguistics",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru343",
+    "school": "Case Western Reserve University",
+    "code": "COGS 343",
+    "title": "Music Cognition",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru377",
+    "school": "Case Western Reserve University",
+    "code": "COGS 377",
+    "title": "Ecopsychology: Reconnecting Mind, Body, Community",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru378",
+    "school": "Case Western Reserve University",
+    "code": "COGS 378",
+    "title": "Computational Neuroscience",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing", "neuro"],
+    "packId": "cwru378"
+  },
+  {
+    "id": "cwru390",
+    "school": "Case Western Reserve University",
+    "code": "COGS 390",
+    "title": "Signs and Symbols: Semiotics in Cognition, Culture, and Communication",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language", "social"],
+    "packId": "cwru390"
+  },
+  {
+    "id": "cwru397",
+    "school": "Case Western Reserve University",
+    "code": "COGS 397",
+    "title": "Capstone in Cognitive Science",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru399",
+    "school": "Case Western Reserve University",
+    "code": "COGS 399",
+    "title": "Independent Studies in Cognitive Science",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru399H",
+    "school": "Case Western Reserve University",
+    "code": "COGS 399H",
+    "title": "Honors Independent Study",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru401",
+    "school": "Case Western Reserve University",
+    "code": "COGS 401",
+    "title": "Special Topics in Cognitive Science",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru403",
+    "school": "Case Western Reserve University",
+    "code": "COGS 403",
+    "title": "Applied Cognitive Science AI",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "cwru403"
+  },
+  {
+    "id": "cwru405",
+    "school": "Case Western Reserve University",
+    "code": "COGS 405",
+    "title": "Social Cognition and the Brain",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["social", "neuro"],
+    "packId": "cwru405"
+  },
+  {
+    "id": "cwru406",
+    "school": "Case Western Reserve University",
+    "code": "COGS 406",
+    "title": "Theory of Cognitive Linguistics I",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "cwru406"
+  },
+  {
+    "id": "cwru407",
+    "school": "Case Western Reserve University",
+    "code": "COGS 407",
+    "title": "Cog Linguistics Theory II",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "cwru407"
+  },
+  {
+    "id": "cwru408",
+    "school": "Case Western Reserve University",
+    "code": "COGS 408",
+    "title": "Advanced Research Workshop I",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["research"],
+    "packId": "cwru408"
+  },
+  {
+    "id": "cwru409",
+    "school": "Case Western Reserve University",
+    "code": "COGS 409",
+    "title": "Advanced Research Workshop II",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["research"],
+    "packId": "cwru409"
+  },
+  {
+    "id": "cwru411",
+    "school": "Case Western Reserve University",
+    "code": "COGS 411",
+    "title": "Mind and Media",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["social", "perception"],
+    "packId": "cwru411"
+  },
+  {
+    "id": "cwru415",
+    "school": "Case Western Reserve University",
+    "code": "COGS 415",
+    "title": "Artificial and Natural Intelligence",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing", "intro"],
+    "packId": "cwru415"
+  },
+  {
+    "id": "cwru416",
+    "school": "Case Western Reserve University",
+    "code": "COGS 416",
+    "title": "Decision-Making",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["reasoning", "research"],
+    "packId": "cwru416"
+  },
+  {
+    "id": "cwru417",
+    "school": "Case Western Reserve University",
+    "code": "COGS 417",
+    "title": "Cognitive Diversity and Commonality",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["social", "development"],
+    "packId": "cwru417"
+  },
+  {
+    "id": "cwru419",
+    "school": "Case Western Reserve University",
+    "code": "COGS 419",
+    "title": "Elements of Surprise",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["reasoning", "perception"],
+    "packId": "cwru419"
+  },
+  {
+    "id": "cwru425",
+    "school": "Case Western Reserve University",
+    "code": "COGS 425",
+    "title": "Cognitive Approaches to Literature",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru427",
+    "school": "Case Western Reserve University",
+    "code": "COGS 427",
+    "title": "Gesture in Cognition and Communication",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language", "perception"],
+    "packId": "cwru427"
+  },
+  {
+    "id": "cwru430",
+    "school": "Case Western Reserve University",
+    "code": "COGS 430",
+    "title": "Cognition and Computation",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "cwru430"
+  },
+  {
+    "id": "cwru431",
+    "school": "Case Western Reserve University",
+    "code": "COGS 431",
+    "title": "Introduction to Applied Linguistics",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "cwru431"
+  },
+  {
+    "id": "cwru435",
+    "school": "Case Western Reserve University",
+    "code": "COGS 435",
+    "title": "Japanese Linguistics",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru443",
+    "school": "Case Western Reserve University",
+    "code": "COGS 443",
+    "title": "Music Cognition",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru477",
+    "school": "Case Western Reserve University",
+    "code": "COGS 477",
+    "title": "Ecopsychology: Reconnecting Mind, Body, Community",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru490",
+    "school": "Case Western Reserve University",
+    "code": "COGS 490",
+    "title": "Signs and Symbols: Semiotics in Cognition, Culture, and Communication",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["language", "social"],
+    "packId": "cwru490"
+  },
+  {
+    "id": "cwru499",
+    "school": "Case Western Reserve University",
+    "code": "COGS 499",
+    "title": "Independent Studies",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "cwru651",
+    "school": "Case Western Reserve University",
+    "code": "COGS 651",
+    "title": "Thesis M.A.",
+    "catalogue": "https://bulletin.case.edu/course-descriptions/cogs/",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "ucsd1",
+    "school": "UC San Diego",
+    "code": "COGS 1",
+    "title": "Introduction to Cognitive Science",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "ucsd1"
+  },
+  {
+    "id": "ucsd11",
+    "school": "UC San Diego",
+    "code": "COGS 11",
+    "title": "Minds and Brains",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["neuro", "memory"],
+    "packId": "ucsd11"
+  },
+  {
+    "id": "ucsd12",
+    "school": "UC San Diego",
+    "code": "COGS 12",
+    "title": "Language, Culture, and Cognition",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["language", "social"],
+    "packId": "ucsd12"
+  },
+  {
+    "id": "ucsd14A",
+    "school": "UC San Diego",
+    "code": "COGS 14A",
+    "title": "Introduction to Research Methods",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["research"],
+    "packId": "ucsd14A"
+  },
+  {
+    "id": "ucsd14B",
+    "school": "UC San Diego",
+    "code": "COGS 14B",
+    "title": "Introduction to Statistical Analysis",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["statistics", "research"],
+    "packId": "ucsd14B"
+  },
+  {
+    "id": "ucsd17",
+    "school": "UC San Diego",
+    "code": "COGS 17",
+    "title": "Neurobiology of Cognition",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "ucsd17"
+  },
+  {
+    "id": "ucsd101A",
+    "school": "UC San Diego",
+    "code": "COGS 101A",
+    "title": "Sensation and Perception",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["perception"],
+    "packId": "ucsd101A"
+  },
+  {
+    "id": "ucsd101B",
+    "school": "UC San Diego",
+    "code": "COGS 101B",
+    "title": "Learning, Memory, and Attention",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["memory", "learning"],
+    "packId": "ucsd101B"
+  },
+  {
+    "id": "ucsd101C",
+    "school": "UC San Diego",
+    "code": "COGS 101C",
+    "title": "Language",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "ucsd101C"
+  },
+  {
+    "id": "ucsd107A",
+    "school": "UC San Diego",
+    "code": "COGS 107A",
+    "title": "Neuroanatomy and Physiology",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "ucsd107A"
+  },
+  {
+    "id": "ucsd107B",
+    "school": "UC San Diego",
+    "code": "COGS 107B",
+    "title": "Systems Neuroscience",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["neuro", "perception"],
+    "packId": "ucsd107B"
+  },
+  {
+    "id": "ucsd107C",
+    "school": "UC San Diego",
+    "code": "COGS 107C",
+    "title": "Cognitive Neuroscience",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["neuro", "memory"],
+    "packId": "ucsd107C"
+  },
+  {
+    "id": "ucsd110",
+    "school": "UC San Diego",
+    "code": "COGS 110",
+    "title": "The Developing Mind",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["development", "language"],
+    "packId": "ucsd110"
+  },
+  {
+    "id": "ucsd118A",
+    "school": "UC San Diego",
+    "code": "COGS 118A",
+    "title": "Supervised Machine Learning Algorithms",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "ucsd118A"
+  },
+  {
+    "id": "ucsd118B",
+    "school": "UC San Diego",
+    "code": "COGS 118B",
+    "title": "Introduction to Machine Learning",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "ucsd118B"
+  },
+  {
+    "id": "ucsd150",
+    "school": "UC San Diego",
+    "code": "COGS 150",
+    "title": "Large Language Models and Cognitive Science",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["computing", "language"],
+    "packId": "ucsd150"
+  },
+  {
+    "id": "ucsd153",
+    "school": "UC San Diego",
+    "code": "COGS 153",
+    "title": "Language Comprehension",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["language", "memory"],
+    "packId": "ucsd153"
+  },
+  {
+    "id": "ucsd156",
+    "school": "UC San Diego",
+    "code": "COGS 156",
+    "title": "Language Development",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["language", "development"],
+    "packId": "ucsd156"
+  },
+  {
+    "id": "ucsd165",
+    "school": "UC San Diego",
+    "code": "COGS 165",
+    "title": "Neuroimaging of Cognition",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["neuro", "research"],
+    "packId": "ucsd165"
+  },
+  {
+    "id": "ucsd180",
+    "school": "UC San Diego",
+    "code": "COGS 180",
+    "title": "Decision-Making",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["reasoning"],
+    "packId": "ucsd180"
+  },
+  {
+    "id": "ucsd181",
+    "school": "UC San Diego",
+    "code": "COGS 181",
+    "title": "Neural Networks and Deep Learning",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["computing", "neuro"],
+    "packId": "ucsd181"
+  },
+  {
+    "id": "ucsd182",
+    "school": "UC San Diego",
+    "code": "COGS 182",
+    "title": "Introduction to Reinforcement Learning",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["computing", "learning"],
+    "packId": "ucsd182"
+  },
+  {
+    "id": "ucsd188",
+    "school": "UC San Diego",
+    "code": "COGS 188",
+    "title": "Artificial Intelligence Algorithms",
+    "catalogue": "https://catalog.ucsd.edu/courses/COGS.html",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "ucsd188"
+  },
+  {
+    "id": "mit9-00",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.00",
+    "title": "Introduction to Psychological Science",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "mit9-00"
+  },
+  {
+    "id": "mit9-01",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.01",
+    "title": "Introduction to Neuroscience",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "mit9-01"
+  },
+  {
+    "id": "mit9-012",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.012",
+    "title": "Cognitive Science",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "mit9-012"
+  },
+  {
+    "id": "mit9-07",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.07",
+    "title": "Statistics for Brain and Cognitive Science",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["statistics", "research"],
+    "packId": "mit9-07"
+  },
+  {
+    "id": "mit9-13",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.13",
+    "title": "The Human Brain",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "mit9-13"
+  },
+  {
+    "id": "mit9-19",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.19",
+    "title": "Computational Psycholinguistics",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["language", "computing"],
+    "packId": "mit9-19"
+  },
+  {
+    "id": "mit9-35",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.35",
+    "title": "Perception",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["perception"],
+    "packId": "mit9-35"
+  },
+  {
+    "id": "mit9-39",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.39",
+    "title": "Language in the Mind and Brain",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["language", "neuro"],
+    "packId": "mit9-39"
+  },
+  {
+    "id": "mit9-40",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.40",
+    "title": "Introduction to Neural Computation",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["computing", "neuro"],
+    "packId": "mit9-40"
+  },
+  {
+    "id": "mit9-85",
+    "school": "Massachusetts Institute of Technology",
+    "code": "9.85",
+    "title": "Infant and Early Childhood Cognition",
+    "catalogue": "https://catalog.mit.edu/subjects/9/",
+    "checked": "2026-10-04",
+    "topics": ["development", "language"],
+    "packId": "mit9-85"
+  },
+  {
+    "id": "iu101",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 101",
+    "title": "Introduction to Cognitive Science",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "iu101"
+  },
+  {
+    "id": "iu-cogs-q-301",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 301",
+    "title": "Brain and Cognition",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "iu-cogs-q-301"
+  },
+  {
+    "id": "iu-cogs-q-330",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 330",
+    "title": "Perception/Action",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": ["perception"],
+    "packId": "iu-cogs-q-330"
+  },
+  {
+    "id": "iu-cogs-q-351",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 351",
+    "title": "Introduction to Artificial Intelligence and Computer Simulation",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": ["computing"],
+    "packId": "iu-cogs-q-351"
+  },
+  {
+    "id": "iu-cogs-q-355",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 355",
+    "title": "Neural Networks and the Brain",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": ["computing", "neuro"],
+    "packId": "iu-cogs-q-355"
+  },
+  {
+    "id": "iu-cogs-q-360",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 360",
+    "title": "Autonomous Robotics",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": []
+  },
+  {
+    "id": "iu-cogs-q-370",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 370",
+    "title": "Experiments and Models in Cognition",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": ["research", "intro"],
+    "packId": "iu-cogs-q-370"
+  },
+  {
+    "id": "iu-cogs-q-380",
+    "school": "Indiana University Bloomington",
+    "code": "COGS-Q 380",
+    "title": "Evolution of Human Cognition",
+    "catalogue": "https://bulletin.college.indiana.edu/programs/4268/cogsmin",
+    "checked": "2026-10-04",
+    "topics": ["evolution", "social"],
+    "packId": "iu-cogs-q-380"
+  },
+  {
+    "id": "penn-cogs-1001",
+    "school": "University of Pennsylvania",
+    "code": "COGS 1001",
+    "title": "Introduction to Cognitive Science",
+    "catalogue": "https://catalog.upenn.edu/courses/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "penn-cogs-1001"
+  },
+  {
+    "id": "penn-cogs-1770",
+    "school": "University of Pennsylvania",
+    "code": "COGS 1770",
+    "title": "Research Practicum in Cognitive Science",
+    "catalogue": "https://catalog.upenn.edu/courses/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["research"],
+    "packId": "penn-cogs-1770"
+  },
+  {
+    "id": "penn-cogs-4290",
+    "school": "University of Pennsylvania",
+    "code": "COGS 4290",
+    "title": "Big Data, Memory and the Human Brain",
+    "catalogue": "https://catalog.upenn.edu/courses/cogs/",
+    "checked": "2026-10-04",
+    "topics": ["memory", "computing"],
+    "packId": "penn-cogs-4290"
+  },
+  {
+    "id": "yale-cgsc-1100",
+    "school": "Yale University",
+    "code": "CGSC 1100",
+    "title": "Introduction to Cognitive Science",
+    "catalogue": "https://catalog.yale.edu/ycps/courses/cgsc/",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "yale-cgsc-1100"
+  },
+  {
+    "id": "yale-cgsc-1390",
+    "school": "Yale University",
+    "code": "CGSC 1390",
+    "title": "Mental Lives of Babies and Animals",
+    "catalogue": "https://catalog.yale.edu/ycps/courses/cgsc/",
+    "checked": "2026-10-04",
+    "topics": ["development", "evolution"],
+    "packId": "yale-cgsc-1390"
+  },
+  {
+    "id": "yale-cgsc-2160",
+    "school": "Yale University",
+    "code": "CGSC 2160",
+    "title": "Cognitive Science of Language",
+    "catalogue": "https://catalog.yale.edu/ycps/courses/cgsc/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "yale-cgsc-2160"
+  },
+  {
+    "id": "yale-cgsc-2740",
+    "school": "Yale University",
+    "code": "CGSC 2740",
+    "title": "Algorithms of the Mind",
+    "catalogue": "https://catalog.yale.edu/ycps/courses/cgsc/",
+    "checked": "2026-10-04",
+    "topics": ["computing", "perception"],
+    "packId": "yale-cgsc-2740"
+  },
+  {
+    "id": "yale-cgsc-3240",
+    "school": "Yale University",
+    "code": "CGSC 3240",
+    "title": "Human Neuropsychology",
+    "catalogue": "https://catalog.yale.edu/ycps/courses/cgsc/",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "yale-cgsc-3240"
+  },
+  {
+    "id": "yale-cgsc-3550",
+    "school": "Yale University",
+    "code": "CGSC 3550",
+    "title": "Inside the Hive Mind: The Psychology of Group Life",
+    "catalogue": "https://catalog.yale.edu/ycps/courses/cgsc/",
+    "checked": "2026-10-04",
+    "topics": ["social"],
+    "packId": "yale-cgsc-3550"
+  },
+  {
+    "id": "mich-cogsci-200",
+    "school": "University of Michigan",
+    "code": "COGSCI 200",
+    "title": "Introduction to Cognitive Science",
+    "catalogue": "https://lsa.umich.edu/lsa/academics/majors-minors/cognitive-science-major.html",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "mich-cogsci-200"
+  },
+  {
+    "id": "mich-psych-240",
+    "school": "University of Michigan",
+    "code": "PSYCH 240",
+    "title": "Introduction to Cognitive Psychology",
+    "catalogue": "https://lsa.umich.edu/lsa/academics/majors-minors/cognitive-science-major.html",
+    "checked": "2026-10-04",
+    "topics": ["memory", "reasoning", "perception"],
+    "packId": "mich-psych-240"
+  },
+  {
+    "id": "mich-psych-345",
+    "school": "University of Michigan",
+    "code": "PSYCH 345",
+    "title": "Introduction to Human Neuropsychology",
+    "catalogue": "https://lsa.umich.edu/lsa/academics/majors-minors/cognitive-science-major.html",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "mich-psych-345"
+  },
+  {
+    "id": "mich-cogsci-445",
+    "school": "University of Michigan",
+    "code": "COGSCI 445",
+    "title": "Introduction to Machine Learning for Natural Language Processing",
+    "catalogue": "https://lsa.umich.edu/lsa/academics/majors-minors/cognitive-science-major.html",
+    "checked": "2026-10-04",
+    "topics": ["computing", "language"],
+    "packId": "mich-cogsci-445"
+  },
+  {
+    "id": "davis-psc-100",
+    "school": "UC Davis",
+    "code": "PSC 100",
+    "title": "Introduction to Cognitive Psychology",
+    "catalogue": "https://catalog.ucdavis.edu/courses-subject-code/psc/",
+    "checked": "2026-10-04",
+    "topics": ["memory", "reasoning", "perception"],
+    "packId": "davis-psc-100"
+  },
+  {
+    "id": "davis-psc-135",
+    "school": "UC Davis",
+    "code": "PSC 135",
+    "title": "Cognitive Neuroscience: The Biological Foundations of the Mind",
+    "catalogue": "https://catalog.ucdavis.edu/courses-subject-code/psc/",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "davis-psc-135"
+  },
+  {
+    "id": "davis-psc-041",
+    "school": "UC Davis",
+    "code": "PSC 041",
+    "title": "Research Methods in Psychology",
+    "catalogue": "https://catalog.ucdavis.edu/courses-subject-code/psc/",
+    "checked": "2026-10-04",
+    "topics": ["research"],
+    "packId": "davis-psc-041"
+  },
+  {
+    "id": "davis-psc-132",
+    "school": "UC Davis",
+    "code": "PSC 132",
+    "title": "Language & Cognition",
+    "catalogue": "https://catalog.ucdavis.edu/courses-subject-code/psc/",
+    "checked": "2026-10-04",
+    "topics": ["language"],
+    "packId": "davis-psc-132"
+  },
+  {
+    "id": "jhu-as-050-116",
+    "school": "Johns Hopkins University",
+    "code": "AS.050.116",
+    "title": "Visual Cognition",
+    "catalogue": "https://e-catalogue.jhu.edu/course-descriptions/cognitive_science/",
+    "checked": "2026-10-04",
+    "topics": ["perception"],
+    "packId": "jhu-as-050-116"
+  },
+  {
+    "id": "jhu-as-050-202",
+    "school": "Johns Hopkins University",
+    "code": "AS.050.202",
+    "title": "Introduction to Computational Cognitive Science",
+    "catalogue": "https://e-catalogue.jhu.edu/course-descriptions/cognitive_science/",
+    "checked": "2026-10-04",
+    "topics": ["computing", "intro"],
+    "packId": "jhu-as-050-202"
+  },
+  {
+    "id": "jhu-as-050-203",
+    "school": "Johns Hopkins University",
+    "code": "AS.050.203",
+    "title": "Neuroscience: Cognitive",
+    "catalogue": "https://e-catalogue.jhu.edu/course-descriptions/cognitive_science/",
+    "checked": "2026-10-04",
+    "topics": ["neuro"],
+    "packId": "jhu-as-050-203"
+  },
+  {
+    "id": "jhu-as-050-326",
+    "school": "Johns Hopkins University",
+    "code": "AS.050.326",
+    "title": "Foundations of Cognitive Science",
+    "catalogue": "https://e-catalogue.jhu.edu/course-descriptions/cognitive_science/",
+    "checked": "2026-10-04",
+    "topics": ["intro"],
+    "packId": "jhu-as-050-326"
+  },
+  {
+    "id": "jhu-as-050-333",
+    "school": "Johns Hopkins University",
+    "code": "AS.050.333",
+    "title": "Psycholinguistics",
+    "catalogue": "https://e-catalogue.jhu.edu/course-descriptions/cognitive_science/",
+    "checked": "2026-10-04",
+    "topics": ["language", "memory"],
+    "packId": "jhu-as-050-333"
+  }
+]

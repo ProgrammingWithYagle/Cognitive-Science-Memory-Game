@@ -1,11 +1,12 @@
 import { createRequire } from 'node:module';
 import { performance } from 'node:perf_hooks';
-import { mkdir, writeFile, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, writeFile, mkdtemp, rm, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import assert from 'node:assert/strict';
 import { io } from 'socket.io-client';
 const require = createRequire(import.meta.url);
+const { version } = JSON.parse(await readFile('package.json', 'utf8'));
 const { createGameServer } = require('../dist/runtime.cjs');
 let time = 10000;
 const checkpointDir = await mkdtemp(path.join(os.tmpdir(), 'mind-mosaic-load-'));
@@ -49,7 +50,7 @@ try {
     await send(clients[0], 'rematch'); assert.equal(room.phase, 'lobby'); assert.ok(room.players.every(p => p.score === 0));
   }
   latencies.sort((a, b) => a - b);
-  const report = { passed: true, test: '10 simultaneous rooms, 8 WebSocket clients each; complete matches, disk checkpoints, reconnects, rematches', activeClients: 80, rooms: 10, matchRounds: 4, commands: latencies.length, elapsedSeconds: +( (performance.now() - started) / 1000).toFixed(2), acknowledgementMs: { median: +latencies[Math.floor(latencies.length * .5)].toFixed(2), p95: +latencies[Math.floor(latencies.length * .95)].toFixed(2), maximum: +latencies.at(-1).toFixed(2) }, limitations: 'One Windows machine, accelerated game clock. This is a burst smoke test, not a 30-minute soak, WAN latency test, or eight-person fun/voice test.' };
+  const report = { passed: true, version, checkedAt: new Date().toISOString(), test: '10 simultaneous rooms, 8 WebSocket clients each; complete matches, disk checkpoints, reconnects, rematches', activeClients: 80, rooms: 10, matchRounds: 4, commands: latencies.length, elapsedSeconds: +( (performance.now() - started) / 1000).toFixed(2), acknowledgementMs: { median: +latencies[Math.floor(latencies.length * .5)].toFixed(2), p95: +latencies[Math.floor(latencies.length * .95)].toFixed(2), maximum: +latencies.at(-1).toFixed(2) }, limitations: 'One Windows machine, accelerated game clock. This is a burst smoke test, not a 30-minute soak, WAN latency test, or eight-person fun/voice test.' };
   await mkdir('docs/validation', { recursive: true }); await writeFile('docs/validation/load-smoke.json', JSON.stringify(report, null, 2) + '\n'); console.log(JSON.stringify(report, null, 2));
 } finally {
   sockets.forEach(s => s.disconnect()); await game.close();

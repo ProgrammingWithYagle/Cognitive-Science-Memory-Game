@@ -1,6 +1,6 @@
 {
   "name": "mind-mosaic",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "A real-time cognitive science memory party game for 2–8 players",
   "author": "ProgrammingWithYagle",
@@ -17,23 +17,63 @@
     "package:win": "electron-builder --win portable --x64 --publish never",
     "verify": "pnpm typecheck && pnpm test && pnpm build"
   },
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
-    "express": "5.2.1", "qrcode": "1.5.4", "react": "19.3.0", "react-dom": "19.3.0",
-    "socket.io": "4.8.4", "socket.io-client": "4.8.4", "zod": "4.6.5"
+    "express": "5.2.1",
+    "livekit-client": "2.22.3",
+    "livekit-server-sdk": "2.19.1",
+    "mammoth": "1.13.0",
+    "pdfjs-dist": "6.4.299",
+    "qrcode": "1.5.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "socket.io": "4.8.4",
+    "socket.io-client": "4.8.4",
+    "zod": "4.6.5"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3", "@types/node": "^24.10.0", "@types/qrcode": "^1.5.6",
-    "@types/react": "^19.2.0", "@types/react-dom": "^19.2.0", "@vitejs/plugin-react": "6.1.1",
-    "electron": "44.5.1", "electron-builder": "26.15.3", "esbuild": "0.28.2",
-    "tsx": "4.23.15", "typescript": "7.0.2", "vite": "8.3.2", "vitest": "5.0.3"
+    "@livekit/rtc-node": "^1.1.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.10.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.28.2",
+    "prettier": "3.9.9",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
   },
   "build": {
-    "appId": "com.programmingwithyagle.mindmosaic", "productName": "Mind Mosaic",
-    "directories": { "output": "releases/v0.1.0" },
-    "files": ["dist/**/*", "desktop/**/*", "package.json", "LICENSE", "THIRD_PARTY_NOTICES.md"],
+    "appId": "com.programmingwithyagle.mindmosaic",
+    "productName": "Mind Mosaic",
+    "directories": {
+      "output": "releases/v0.2.0"
+    },
+    "files": [
+      "dist/**/*",
+      "desktop/**/*",
+      "package.json",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md"
+    ],
     "asar": true,
-    "win": { "target": ["portable"], "icon": "desktop/icon.ico", "artifactName": "Mind-Mosaic-${version}-Windows-Portable.${ext}" },
-    "portable": { "requestExecutionLevel": "user" }
-  }
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "desktop/icon.ico",
+      "artifactName": "Mind-Mosaic-${version}-Windows-Portable.${ext}"
+    },
+    "portable": {
+      "requestExecutionLevel": "user"
+    }
+  },
+  "packageManager": "pnpm@11.25.0"
 }

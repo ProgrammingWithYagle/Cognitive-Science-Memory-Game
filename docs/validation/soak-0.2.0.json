@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "version": "0.2.0",
+  "test": "Real wall-clock timers; 24 WebSocket bots in three eight-player rooms; checkpoint restoration, temporary disconnects, explicit leaves/rejoins and rematches",
+  "durationMinutes": 30,
+  "matches": 43,
+  "commands": 4031,
+  "restarts": 5,
+  "reconnects": 204,
+  "departures": 45,
+  "errors": 0,
+  "rssMb": 88,
+  "acknowledgementMs": {
+    "p50": 8.95,
+    "p95": 23.51,
+    "maximum": 139.1
+  },
+  "limitations": "Single Windows host and synthetic local clients. Does not verify WAN latency, real microphones, phone browsers, human pacing or fun."
+}
