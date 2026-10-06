@@ -1042,7 +1042,9 @@ function App() {
                     <div>
                       <strong>Bring another mind.</strong>
                       <p>
-                        Share the link or scan from a phone on the same network.
+                        Share the link or scan it from a phone.
+                        {location.protocol === "http:" &&
+                          " Keep devices on the same network."}
                       </p>
                       <input
                         aria-label="Room invite link"

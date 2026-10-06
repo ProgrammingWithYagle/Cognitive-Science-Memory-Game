@@ -36,7 +36,10 @@ else if (mode === 'checks') {
 } else if (mode === 'pr') {
   const existing = await api(`${base}/pulls?state=open&head=ProgrammingWithYagle:codex/mind-mosaic`);
   const body = await readFile('docs/PR_DESCRIPTION.md', 'utf8');
-  const pr = existing[0] ?? await api(`${base}/pulls`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: 'Fix interrupted matches and add course studio, voice and attention playtests', head: 'codex/mind-mosaic', base: 'main', body, draft: false }) });
+  const title = 'Fix interrupted matches and add course studio, voice and attention playtests';
+  let pr = existing[0];
+  if (!pr) pr = await api(`${base}/pulls`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, head: 'codex/mind-mosaic', base: 'main', body, draft: false }) });
+  else if (pr.body !== body || pr.title !== title) pr = await api(`${base}/pulls/${pr.number}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, body }) });
   console.log(JSON.stringify({ url: pr.html_url, number: pr.number, state: pr.state, head: pr.head.sha }));
 } else await publish();
 async function publish() {

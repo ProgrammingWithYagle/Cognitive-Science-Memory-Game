@@ -4,6 +4,8 @@ A real-time memory party game for **2–8 players**, joining by room code from t
 
 **v0.2.0 is ready for local playtesting.** It fixes departure/rejoin freezes and adds manual question navigation, five difficulties, visible arrow/Stroop practice, a larger course studio, document imports, optional voice and optional creator-only AI drafting. [Download the Windows portable game](https://github.com/ProgrammingWithYagle/Cognitive-Science-Memory-Game/releases/tag/v0.2.0).
 
+[Play the public preview](https://mind-mosaic-jsjx.onrender.com/). The free service can sleep when idle and lose rooms on restart. An eight-client online match, Leave and reconnect checks passed; human device and microphone playtests remain. Players need no hosting account.
+
 ## Play locally
 
 Download the Windows portable package from [GitHub Releases](https://github.com/ProgrammingWithYagle/Cognitive-Science-Memory-Game/releases). Extract the ZIP and double-click the portable executable. No separate Node installation is needed. The app starts its own local server and shows an invitation link and QR code.

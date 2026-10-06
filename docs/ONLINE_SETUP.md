@@ -2,6 +2,8 @@
 
 You can play locally now. These steps set up your own public browser address; voice is a separate optional service. The Windows download does not create accounts or activate paid services.
 
+A [free game preview is already available](https://mind-mosaic-jsjx.onrender.com/) in your Render **My Workspace**. Players can use it without accounts. The service deploys `codex/mind-mosaic` and has automatic deployment disabled to keep playtests stable; deploy later game updates explicitly in its dashboard. Skip step 1 unless you want another service. LiveKit voice still needs step 2. The free-preview limitations below apply.
+
 ## 1. Create a free game preview on Render
 
 1. Open [Render](https://dashboard.render.com/) and sign up with your GitHub account. You complete account creation and any terms acceptance yourself.

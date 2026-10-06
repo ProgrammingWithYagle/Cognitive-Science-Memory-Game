@@ -10,6 +10,8 @@ Leaving a match no longer strands the remaining players. Competitive matches con
 - Optional LiveKit voice: listen-first joining, hold-to-talk, host mute, quiet private phases and text fallback. Optional creator-only OpenAI drafting: transient keys, cost consent, cancellation and source checks.
 - Guided online setup and Render free-preview configuration. The download does not create accounts or activate paid services; any hosted preview is a separate service.
 
+[Play the free public preview](https://mind-mosaic-jsjx.onrender.com/). Eight synthetic players completed a four-round online match, including Leave, return and reconnection. The free service can sleep when idle and lose rooms on restart.
+
 Validation: **188 automated tests**, production/type checks, a **30-minute wall-clock test** (43 matches, 45 leaves, 204 reconnects, five checkpoint restores, zero errors), an 80-client burst test, eight native WebRTC clients exchanging synthetic audio, and browser checks for navigation, both attention tasks, PDF/DOCX import and review. Details are in docs/VALIDATION_0.2.0.md.
 
 Extract the Windows ZIP, then double-click the executable. Windows x64; no separate runtime or installation. The executable is unsigned. Human phone/microphone testing, public WAN performance and real paid AI output require creator setup and playtests; this is a playtest prerelease.

@@ -74,7 +74,7 @@ try {
       if (!departed) {
         await send(clients[7], "leave");
         assert.equal((await request(clients[7], "resume", sessions[7])).ok, false);
-        await send(clients[7], "join", { code: sessions[0].code, name: "Returned preview guest" });
+        await send(clients[7], "join", { code: sessions[0].code, name: "Returned guest" });
         assert.equal(states[7].role, "spectator");
         departed = true;
         console.log("Leave and revoked-session checks passed; returning guest is a spectator.");
