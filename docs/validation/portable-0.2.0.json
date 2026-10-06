@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "version": "0.2.0",
+  "checkedAt": "2026-10-06T03:25:02.8168800Z",
+  "startup": {
+    "health": {
+      "ok": true,
+      "version": "0.2.0",
+      "rooms": 0
+    },
+    "frontend": true,
+    "port": 51954,
+    "electron": "44.5.1"
+  },
+  "occupiedPortFallback": true,
+  "extractedExecutableMatches": true,
+  "archiveFiles": [
+    "LICENSE",
+    "Mind-Mosaic-0.2.0-Windows-Portable.exe",
+    "ONLINE_SETUP.md",
+    "READ_ME.txt",
+    "sample-course-notes.txt",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "assets": [
+    {
+      "name": "Mind-Mosaic-0.2.0-Windows-Portable.exe",
+      "bytes": 118026073,
+      "sha256": "bd3ec665c64171247f87d16c927ce7825c2cc395425de607eb8ce193cde97f39"
+    },
+    {
+      "name": "Mind-Mosaic-0.2.0-Windows-Portable.zip",
+      "bytes": 118046523,
+      "sha256": "ebfb8a5f918f191f4556e34b668ed5fb98e694f7c638dd4352264078c9f1dd88"
+    }
+  ],
+  "limitations": "Unsigned Windows x64 app. Startup/frontend self-test; does not establish human microphone or real-phone behavior."
+}

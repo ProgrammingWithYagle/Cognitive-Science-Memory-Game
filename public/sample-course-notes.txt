@@ -1,0 +1,8 @@
+Example glossary authored for Mind Mosaic. Replace with your own authorized notes.
+
+Encoding: Getting new information into memory
+Storage: Keeping information in memory over time
+Retrieval: Bringing stored information back to mind
+Recognition: Identifying something that was encountered before
+Recall: Retrieving information without being shown the answer
+Chunking: Grouping separate elements into meaningful units

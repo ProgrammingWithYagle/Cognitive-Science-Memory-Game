@@ -1,5 +1,7 @@
 # Mind Mosaic v0.1.0: playable local core
 
+Historical milestone record. For the current update, see [v0.2.0 validation](VALIDATION_0.2.0.md) and the repository README.
+
 The user approved the design and requested the working core first, for local testing before polish. This milestone delivers the game loop, local multiplayer, GitHub source, and a Windows portable download. It does not claim the complete contest launch or a guaranteed judging score.
 
 ## Included

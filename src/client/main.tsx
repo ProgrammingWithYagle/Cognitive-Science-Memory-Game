@@ -1,125 +1,1770 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { io } from 'socket.io-client';
-import QRCode from 'qrcode';
-import type { ContentPack, Mode, PackInfo, Question, Receipt, Session, Settings, Snapshot, Study } from '../shared/types';
-import { DEFAULT_SETTINGS, MODE_NAMES } from '../shared/types';
-import { HeroArt, MosaicLogo, ObjectArt } from './Art';
-import './styles.css';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { io } from "socket.io-client";
+import QRCode from "qrcode";
+import type {
+  ContentPack,
+  Mode,
+  PackInfo,
+  Question,
+  Receipt,
+  Session,
+  Settings,
+  Snapshot,
+  Study,
+} from "../shared/types";
+import {
+  DEFAULT_SETTINGS,
+  MODE_NAMES,
+  DIFFICULTIES,
+  normalizeDifficulty,
+} from "../shared/types";
+import { HeroArt, MosaicLogo, ObjectArt } from "./Art";
+import { Studio } from "./Studio";
+import { Voice } from "./Voice";
+import { packSchema } from "../shared/content";
+import "./styles.css";
 const socket = io({ autoConnect: false });
-const modeCopy: Record<Mode, { label: string; icon: string; description: string }> = {
-  rally: { label: 'Friendly competition', icon: 'leaf', description: 'Take in the little details. Remember your way to the top.' },
-  frenzy: { label: 'Quick thinking', icon: 'star', description: 'Keep your focus when the clock and your mind play tricks.' },
-  team: { label: 'Better together', icon: 'book', description: 'Different memories. One shared picture. Piece it together.' },
+const modeCopy: Record<
+  Mode,
+  { label: string; icon: string; description: string }
+> = {
+  rally: {
+    label: "Friendly competition",
+    icon: "leaf",
+    description: "Take in the little details. Remember your way to the top.",
+  },
+  frenzy: {
+    label: "Quick thinking",
+    icon: "star",
+    description: "Keep your focus when the clock and your mind play tricks.",
+  },
+  team: {
+    label: "Better together",
+    icon: "book",
+    description: "Different memories. One shared picture. Piece it together.",
+  },
 };
-function read<T>(which: 'localStorage' | 'sessionStorage', key: string, fallback: T): T { try { return JSON.parse(window[which].getItem(key) ?? 'null') ?? fallback; } catch { return fallback; } }
-function keep(which: 'localStorage' | 'sessionStorage', key: string, value: unknown) { try { const store = window[which]; value === null ? store.removeItem(key) : store.setItem(key, JSON.stringify(value)); } catch { /* Storage is optional. */ } }
-function Source({ source }: { source?: string }) { if (!source) return null; try { if (new URL(source).protocol === 'https:') return <a href={source} target="_blank" rel="noopener noreferrer">Read the source ↗</a>; } catch {} return <span className="muted">{source}</span>; }
-function ModeCards({ value, onChange, compact = false, disabled = false }: { value: Mode; onChange: (m: Mode) => void; compact?: boolean; disabled?: boolean }) {
-  return <div className={`mode-cards ${compact ? 'compact' : ''}`} role="group" aria-label="Game mode">{(Object.keys(modeCopy) as Mode[]).map((m, i) => <button key={m} className={`mode-card ${value === m ? 'selected' : ''}`} aria-pressed={value === m} disabled={disabled} onClick={() => onChange(m)}><span className={`mode-picture mode-${m}`}><ObjectArt icon={modeCopy[m].icon}/></span><span className="mode-copy"><span className="eyebrow">0{i + 1} / {modeCopy[m].label}</span><strong>{MODE_NAMES[m]}</strong>{!compact && <span>{modeCopy[m].description}</span>}</span><span className="selection-mark">{value === m ? '✓' : '↗'}</span></button>)}</div>;
+function read<T>(
+  which: "localStorage" | "sessionStorage",
+  key: string,
+  fallback: T,
+): T {
+  try {
+    return JSON.parse(window[which].getItem(key) ?? "null") ?? fallback;
+  } catch {
+    return fallback;
+  }
 }
-function SettingsPanel({ value, onChange, packs, disabled = false }: { value: Settings; onChange: (s: Settings) => void; packs: PackInfo[]; disabled?: boolean }) {
-  const current = packs.find(p => p.id === value.packId) ?? packs[0], school = current?.school ?? '';
+function keep(
+  which: "localStorage" | "sessionStorage",
+  key: string,
+  value: unknown,
+) {
+  try {
+    const store = window[which];
+    value === null
+      ? store.removeItem(key)
+      : store.setItem(key, JSON.stringify(value));
+  } catch {
+    /* Storage is optional. */
+  }
+}
+function Source({ source }: { source?: string }) {
+  if (!source) return null;
+  try {
+    if (new URL(source).protocol === "https:")
+      return (
+        <a href={source} target="_blank" rel="noopener noreferrer">
+          Read the source ↗
+        </a>
+      );
+  } catch {}
+  return <span className="muted">{source}</span>;
+}
+function ModeCards({
+  value,
+  onChange,
+  compact = false,
+  disabled = false,
+}: {
+  value: Mode;
+  onChange: (m: Mode) => void;
+  compact?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <div
+      className={`mode-cards ${compact ? "compact" : ""}`}
+      role="group"
+      aria-label="Game mode"
+    >
+      {(Object.keys(modeCopy) as Mode[]).map((m, i) => (
+        <button
+          key={m}
+          className={`mode-card ${value === m ? "selected" : ""}`}
+          aria-pressed={value === m}
+          disabled={disabled}
+          onClick={() => onChange(m)}
+        >
+          <span className={`mode-picture mode-${m}`}>
+            <ObjectArt icon={modeCopy[m].icon} />
+          </span>
+          <span className="mode-copy">
+            <span className="eyebrow">
+              0{i + 1} / {modeCopy[m].label}
+            </span>
+            <strong>{MODE_NAMES[m]}</strong>
+            {!compact && <span>{modeCopy[m].description}</span>}
+          </span>
+          <span className="selection-mark">{value === m ? "✓" : "↗"}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+function SettingsPanel({
+  value,
+  onChange,
+  packs,
+  disabled = false,
+}: {
+  value: Settings;
+  onChange: (s: Settings) => void;
+  packs: PackInfo[];
+  disabled?: boolean;
+}) {
+  const current = packs.find((p) => p.id === value.packId) ?? packs[0],
+    school = current?.school ?? "";
   const update = (patch: Partial<Settings>) => onChange({ ...value, ...patch });
-  return <div className="settings-panel"><div className="field-grid">
-    <label>School or collection<select value={school} disabled={disabled} onChange={e => update({ packId: packs.find(p => p.school === e.target.value)!.id })}>{[...new Set(packs.map(p => p.school))].map(s => <option key={s}>{s}</option>)}</select></label>
-    <label>Content pack<select value={value.packId} disabled={disabled} onChange={e => update({ packId: e.target.value })}>{packs.filter(p => p.school === school).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
-    <label>Challenge<select value={value.difficulty} disabled={disabled} onChange={e => update({ difficulty: e.target.value as Settings['difficulty'] })}><option value="guided">Guided · more time</option><option value="standard">Standard</option><option value="challenge">Challenge · more to remember</option></select></label>
-    <label>Match length<select value={value.rounds} disabled={disabled} onChange={e => update({ rounds: Number(e.target.value) as Settings['rounds'] })}><option value="4">4 rounds · a quick visit</option><option value="6">6 rounds · the usual adventure</option><option value="10">10 rounds · stay a while</option></select></label>
-    {value.mode === 'team' && <label>Team goal<select value={value.target} disabled={disabled} onChange={e => update({ target: Number(e.target.value) as Settings['target'] })}><option value="60">60% · relaxed</option><option value="70">70% · standard</option><option value="85">85% · ambitious</option></select></label>}
-  </div>{current && <p className="pack-description">{current.description} <span>{current.count} fact cards.</span></p>}<details><summary>Classroom & accessibility</summary><div className="switches"><label><input type="checkbox" checked={value.classroom} disabled={disabled} onChange={e => update({ classroom: e.target.checked })}/> Host advances between rounds</label><label><input type="checkbox" checked={value.readingLight} disabled={disabled} onChange={e => update({ readingLight: e.target.checked })}/> Symbol-based attention task</label><label><input type="checkbox" checked={value.chat} disabled={disabled} onChange={e => update({ chat: e.target.checked })}/> Room text chat</label></div></details></div>;
+  return (
+    <div className="settings-panel">
+      <div className="field-grid">
+        <label>
+          School or collection
+          <select
+            value={school}
+            disabled={disabled}
+            onChange={(e) =>
+              update({
+                packId: packs.find((p) => p.school === e.target.value)!.id,
+              })
+            }
+          >
+            {[...new Set(packs.map((p) => p.school))].map((s) => (
+              <option key={s}>{s}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Content pack
+          <select
+            value={value.packId}
+            disabled={disabled}
+            onChange={(e) => update({ packId: e.target.value })}
+          >
+            {packs
+              .filter((p) => p.school === school)
+              .map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label>
+          Challenge
+          <select
+            value={normalizeDifficulty(value.difficulty)}
+            disabled={disabled}
+            onChange={(e) =>
+              update({ difficulty: e.target.value as Settings["difficulty"] })
+            }
+          >
+            {Object.entries(DIFFICULTIES).map(([id, d]) => (
+              <option key={id} value={id}>
+                {d.label} · {d.description}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Match length
+          <select
+            value={value.rounds}
+            disabled={disabled}
+            onChange={(e) =>
+              update({ rounds: Number(e.target.value) as Settings["rounds"] })
+            }
+          >
+            <option value="4">4 rounds · a quick visit</option>
+            <option value="6">6 rounds · the usual adventure</option>
+            <option value="10">10 rounds · stay a while</option>
+          </select>
+        </label>
+        {value.mode === "team" && (
+          <label>
+            Team goal
+            <select
+              value={value.target}
+              disabled={disabled}
+              onChange={(e) =>
+                update({ target: Number(e.target.value) as Settings["target"] })
+              }
+            >
+              <option value="60">60% · relaxed</option>
+              <option value="70">70% · standard</option>
+              <option value="85">85% · ambitious</option>
+            </select>
+          </label>
+        )}
+      </div>
+      {current && (
+        <p className="pack-description">
+          {current.description} <span>{current.count} fact cards.</span>
+        </p>
+      )}
+      <details>
+        <summary>Classroom & accessibility</summary>
+        <div className="switches">
+          <label>
+            <input
+              type="checkbox"
+              checked={value.classroom}
+              disabled={disabled}
+              onChange={(e) => update({ classroom: e.target.checked })}
+            />{" "}
+            Host advances between rounds
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={value.readingLight}
+              disabled={disabled}
+              onChange={(e) => update({ readingLight: e.target.checked })}
+            />{" "}
+            Arrow positions instead of Stroop color words
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={value.chat}
+              disabled={disabled}
+              onChange={(e) => update({ chat: e.target.checked })}
+            />{" "}
+            Room text chat
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={!!value.voice}
+              disabled={disabled}
+              onChange={(e) => update({ voice: e.target.checked })}
+            />{" "}
+            Room voice · optional microphone
+          </label>
+        </div>
+      </details>
+    </div>
+  );
 }
 function StudyBoard({ study }: { study: Study }) {
-  if (study.kind === 'facts') return <div className="fact-grid">{study.cards?.map(c => <div className="study-fact" key={c.index}><span className="eyebrow">FIELD NOTE {c.index + 1}</span><p>{c.cue}</p><strong>{c.answer}</strong></div>)}</div>;
-  if (study.kind === 'scene') return <div className="shelf">{Array.from({ length: 9 }, (_, pos) => { const tile = study.tiles?.find(t => t.position === pos); return <div key={pos} className={`shelf-tile ${tile ? 'occupied' : ''}`}><span className="spot">{pos + 1}</span>{tile && <><ObjectArt icon={tile.icon}/><span>{tile.label}</span></>}</div>; })}</div>;
-  const tiles = study.tiles ?? [], groups = [...new Set(tiles.map(t => Math.floor(t.position / 2)))];
-  return <div className={`sequence ${study.grouped ? 'grouped' : ''}`}>{groups.map(group => <div className="sequence-pair" key={group}>{tiles.filter(t => Math.floor(t.position / 2) === group).map(t => <div className="sequence-tile" key={t.id}><span className="spot">{t.position + 1}</span><ObjectArt icon={t.icon}/><span>{t.label}</span></div>)}</div>)}</div>;
+  if (study.kind === "facts")
+    return (
+      <div className="fact-grid">
+        {study.cards?.map((c) => (
+          <div className="study-fact" key={c.index}>
+            <span className="eyebrow">FIELD NOTE {c.index + 1}</span>
+            <p>{c.cue}</p>
+            <strong>{c.answer}</strong>
+          </div>
+        ))}
+      </div>
+    );
+  if (study.kind === "scene")
+    return (
+      <div className="shelf">
+        {Array.from({ length: 9 }, (_, pos) => {
+          const tile = study.tiles?.find((t) => t.position === pos);
+          return (
+            <div key={pos} className={`shelf-tile ${tile ? "occupied" : ""}`}>
+              <span className="spot">{pos + 1}</span>
+              {tile && (
+                <>
+                  <ObjectArt icon={tile.icon} />
+                  <span>{tile.label}</span>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  const tiles = study.tiles ?? [],
+    groups = [...new Set(tiles.map((t) => Math.floor(t.position / 2)))];
+  return (
+    <div className={`sequence ${study.grouped ? "grouped" : ""}`}>
+      {groups.map((group) => (
+        <div className="sequence-pair" key={group}>
+          {tiles
+            .filter((t) => Math.floor(t.position / 2) === group)
+            .map((t) => (
+              <div className="sequence-tile" key={t.id}>
+                <span className="spot">{t.position + 1}</span>
+                <ObjectArt icon={t.icon} />
+                <span>{t.label}</span>
+              </div>
+            ))}
+        </div>
+      ))}
+    </div>
+  );
 }
-function Deck({ questions, selections, onSelect, disabled, team, selfId }: { questions: Question[]; selections: Record<string, string>; onSelect: (q: string, value: string) => void; disabled: boolean; team?: Snapshot; selfId: string }) {
-  const [cursor, setCursor] = useState(0); useEffect(() => setCursor(0), [questions[0]?.id]);
-  const q = questions[Math.min(cursor, questions.length - 1)]; if (!q) return null;
-  const stimulusColors: Record<string, string> = { Red: '#b44c38', Blue: '#476cb5', Green: '#21695e', Gold: '#977214' };
-  return <div className="question-deck"><div className="question-tabs" aria-label="Questions">{questions.map((item, i) => <button key={item.id} className={`${i === cursor ? 'current' : ''} ${Object.hasOwn(selections, item.id) ? 'answered' : ''}`} onClick={() => setCursor(i)} aria-label={`Question ${i + 1}${Object.hasOwn(selections, item.id) ? ', answered' : ''}`}>{Object.hasOwn(selections, item.id) ? '✓' : i + 1}</button>)}</div><span className="eyebrow">{team ? 'SHARED ANSWER BOARD' : 'A PIECE TO REMEMBER'} / {cursor + 1} OF {questions.length}</span><h2>{q.text}</h2>
-    {q.stimulus && <div className={`stimulus ${q.stimulus.symbol ? 'arrow-stimulus' : ''}`} style={{ color: stimulusColors[q.stimulus.color] ?? q.stimulus.color }}><span>{q.stimulus.symbol ?? q.stimulus.word}</span></div>}
-    <div className="options">{q.options.map((o, i) => { const voters = team?.proposals.filter(p => p.questionId === q.id && p.optionId === o.id) ?? []; const yourVote = voters.some(p => p.playerId === selfId); return <button key={o.id} disabled={disabled} className={`option ${selections[q.id] === o.id ? 'chosen' : ''} ${yourVote ? 'voted' : ''}`} aria-pressed={selections[q.id] === o.id || yourVote} onClick={() => { onSelect(q.id, o.id); if (!team && questions.length > 1 && cursor < questions.length - 1) setTimeout(() => setCursor(c => Math.min(c + 1, questions.length - 1)), 180); }}>{o.icon ? <ObjectArt icon={o.icon}/> : <span className="option-letter">{'ABCD'[i]}</span>}<span>{o.label}</span>{team && <small>{voters.length} {voters.length === 1 ? 'clue' : 'clues'}{yourVote ? ' · yours' : ''}</small>}{selections[q.id] === o.id && <span className="choice-check">✓</span>}</button>; })}</div>
-    {questions.length > 1 && <div className="deck-nav"><button className="text-button" disabled={cursor === 0} onClick={() => setCursor(c => c - 1)}>← Previous</button><button className="text-button" disabled={cursor === questions.length - 1} onClick={() => setCursor(c => c + 1)}>Next →</button></div>}
-  </div>;
-}
-function Studio({ packs, onSave, onClose }: { packs: ContentPack[]; onSave: (p: ContentPack) => void; onClose: () => void }) {
-  const blank = (): ContentPack['facts'][number] => ({ id: crypto.randomUUID?.() ?? String(Date.now() + Math.random()), cue: '', answer: '', alternatives: ['', '', ''], explanation: '', source: '' });
-  const [pack, setPack] = useState<ContentPack>(packs[0] ?? { version: 1, id: `custom-${Date.now()}`, name: 'My course pack', school: 'My collection', course: '', description: 'A collection of my own study cards.', custom: true, facts: Array.from({ length: 6 }, blank) });
-  const [index, setIndex] = useState(0), [error, setError] = useState(''); const fact = pack.facts[index];
-  const update = (patch: Partial<typeof fact>) => setPack(p => ({ ...p, facts: p.facts.map((f, i) => i === index ? { ...f, ...patch } : f) }));
-  function save() { if (!pack.name.trim() || pack.facts.length < 6 || pack.facts.some(f => !f.cue.trim() || new Set([f.answer, ...f.alternatives].map(s => s.trim().toLowerCase())).size !== 4 || [f.answer, ...f.alternatives].some(a => !a.trim()))) return setError('Complete at least six cards, each with one answer and three different alternatives.'); onSave({ ...pack, custom: true }); onClose(); }
-  function exportPack() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(pack, null, 2)], { type: 'application/json' })); a.download = 'mind-mosaic-pack.json'; a.click(); URL.revokeObjectURL(a.href); }
-  async function importPack(file?: File) { if (!file) return; try { if (file.size > 250000) throw new Error('Choose a JSON pack smaller than 250 KB.'); const p = JSON.parse(await file.text()); if (p.version !== 1 || typeof p.name !== 'string' || !Array.isArray(p.facts) || p.facts.length < 6 || p.facts.length > 100 || p.facts.some((f: any) => typeof f.cue !== 'string' || typeof f.answer !== 'string' || !Array.isArray(f.alternatives) || f.alternatives.length !== 3 || f.alternatives.some((a: any) => typeof a !== 'string'))) throw new Error('This is not a version 1 content pack with 6–100 valid cards.'); setPack({ ...p, id: `custom-${Date.now()}`, school: typeof p.school === 'string' ? p.school : 'My collection', course: typeof p.course === 'string' ? p.course : '', description: typeof p.description === 'string' ? p.description : '', custom: true, facts: p.facts.map((f: any, i: number) => ({ ...f, id: `card-${i}`, explanation: typeof f.explanation === 'string' ? f.explanation : '', source: typeof f.source === 'string' ? f.source : '' })) }); setIndex(0); setError(''); } catch (e) { setError(e instanceof Error ? e.message : 'Could not read the pack.'); } }
-  return <div className="modal-backdrop"><section className="modal studio" role="dialog" aria-modal="true" aria-label="Content studio"><button className="modal-close" onClick={onClose} aria-label="Close studio">×</button><span className="eyebrow">MAKE IT YOURS</span><h2>Content studio</h2><p className="muted">Your cards stay on this device until you use them in a room. Six cards support a four-round match; twelve support six rounds; eighteen support ten.</p>{packs.length > 0 && <label>Open saved pack<select value={pack.id} onChange={e => { setPack(packs.find(p => p.id === e.target.value)!); setIndex(0); }}><option value={pack.id}>{pack.name}</option>{packs.filter(p => p.id !== pack.id).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}<div className="field-grid"><label>Pack title<input value={pack.name} maxLength={80} onChange={e => setPack({ ...pack, name: e.target.value })}/></label><label>School / collection<input value={pack.school} maxLength={100} onChange={e => setPack({ ...pack, school: e.target.value })}/></label><label>Course code<input value={pack.course} maxLength={80} onChange={e => setPack({ ...pack, course: e.target.value })}/></label></div><div className="studio-card"><div className="studio-pagination"><button className="small-button" disabled={index === 0} onClick={() => setIndex(i => i - 1)}>←</button><strong>Card {index + 1} / {pack.facts.length}</strong><button className="small-button" disabled={index >= pack.facts.length - 1} onClick={() => setIndex(i => i + 1)}>→</button></div><label>Clue or definition<input value={fact.cue} maxLength={160} onChange={e => update({ cue: e.target.value })}/></label><label>Correct answer<input value={fact.answer} maxLength={80} onChange={e => update({ answer: e.target.value })}/></label><div className="field-grid">{fact.alternatives.map((a, i) => <label key={i}>Alternative {i + 1}<input value={a} maxLength={80} onChange={e => update({ alternatives: fact.alternatives.map((old, n) => n === i ? e.target.value : old) })}/></label>)}</div><label>Explanation<input value={fact.explanation} maxLength={500} onChange={e => update({ explanation: e.target.value })}/></label><label>Source URL or reference<input value={fact.source} maxLength={500} onChange={e => update({ source: e.target.value })}/></label><button className="text-button" onClick={() => { setPack(p => ({ ...p, facts: [...p.facts, blank()] })); setIndex(pack.facts.length); }}>+ Add card</button>{pack.facts.length > 6 && <button className="text-button" onClick={() => { setPack(p => ({ ...p, facts: p.facts.filter((_, i) => i !== index) })); setIndex(i => Math.max(0, i - 1)); }}>Remove this card</button>}</div>{error && <p role="alert" className="inline-error">{error}</p>}<div className="button-row"><label className="secondary file-button">Import JSON<input type="file" accept=".json,application/json" onChange={e => void importPack(e.target.files?.[0])}/></label><button className="secondary" onClick={exportPack}>Export JSON</button><button className="primary" onClick={save}>Save pack</button></div></section></div>;
+function Deck({
+  questions,
+  selections,
+  onSelect,
+  disabled,
+  team,
+  selfId,
+}: {
+  questions: Question[];
+  selections: Record<string, string>;
+  onSelect: (q: string, value: string) => void;
+  disabled: boolean;
+  team?: Snapshot;
+  selfId: string;
+}) {
+  const [cursor, setCursor] = useState(0);
+  useEffect(() => setCursor(0), [questions[0]?.id]);
+  const q = questions[Math.min(cursor, questions.length - 1)];
+  if (!q) return null;
+  const stimulusColors: Record<string, string> = {
+    Red: "#b44c38",
+    Blue: "#476cb5",
+    Green: "#21695e",
+    Gold: "#977214",
+  };
+  return (
+    <div className="question-deck">
+      <div className="question-tabs" aria-label="Questions">
+        {questions.map((item, i) => (
+          <button
+            key={item.id}
+            className={`${i === cursor ? "current" : ""} ${Object.hasOwn(selections, item.id) ? "answered" : ""}`}
+            onClick={() => setCursor(i)}
+            aria-label={`Question ${i + 1}${Object.hasOwn(selections, item.id) ? ", answered" : ""}`}
+          >
+            {Object.hasOwn(selections, item.id) ? "✓" : i + 1}
+          </button>
+        ))}
+      </div>
+      <span className="eyebrow">
+        {team ? "SHARED ANSWER BOARD" : "A PIECE TO REMEMBER"} / {cursor + 1} OF{" "}
+        {questions.length}
+      </span>
+      <h2>{q.text}</h2>
+      {q.stimulus && (
+        <div
+          className={`stimulus ${q.stimulus.symbol ? "arrow-stimulus" : ""}`}
+          style={{
+            color: stimulusColors[q.stimulus.color] ?? q.stimulus.color,
+            textAlign: q.stimulus.position ?? "center",
+          }}
+        >
+          <span>{q.stimulus.symbol ?? q.stimulus.word}</span>
+        </div>
+      )}
+      <div className="options">
+        {q.options.map((o, i) => {
+          const voters =
+            team?.proposals.filter(
+              (p) => p.questionId === q.id && p.optionId === o.id,
+            ) ?? [];
+          const yourVote = voters.some((p) => p.playerId === selfId);
+          return (
+            <button
+              key={o.id}
+              disabled={disabled}
+              className={`option ${selections[q.id] === o.id ? "chosen" : ""} ${yourVote ? "voted" : ""}`}
+              aria-pressed={selections[q.id] === o.id || yourVote}
+              onClick={() => {
+                onSelect(q.id, o.id);
+              }}
+            >
+              {o.icon ? (
+                <ObjectArt icon={o.icon} />
+              ) : (
+                <span className="option-letter">{"ABCD"[i]}</span>
+              )}
+              <span>{o.label}</span>
+              {team && (
+                <small>
+                  {voters.length} {voters.length === 1 ? "clue" : "clues"}
+                  {yourVote ? " · yours" : ""}
+                </small>
+              )}
+              {selections[q.id] === o.id && (
+                <span className="choice-check">✓</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      {questions.length > 1 && (
+        <div className="deck-nav">
+          <button
+            className="text-button"
+            disabled={cursor === 0}
+            onClick={() => setCursor((c) => c - 1)}
+          >
+            ← Previous
+          </button>
+          <button
+            className="text-button"
+            disabled={cursor === questions.length - 1}
+            onClick={() => setCursor((c) => c + 1)}
+          >
+            Next →
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 function App() {
-  const [snapshot, setSnapshot] = useState<Snapshot | null>(null), [connected, setConnected] = useState(false), [error, setError] = useState(''), [toast, setToast] = useState('');
-  const [packs, setPacks] = useState<PackInfo[]>([]), [customPacks, setCustomPacks] = useState<ContentPack[]>(() => read('localStorage', 'mind-mosaic-packs-v1', [])), [lan, setLan] = useState<string[]>([]), [shareBase, setShareBase] = useState('');
-  const [selectedMode, setSelectedMode] = useState<Mode>('rally'), [createOpen, setCreateOpen] = useState(false), [studioOpen, setStudioOpen] = useState(false), [rulesOpen, setRulesOpen] = useState(false);
-  const [name, setName] = useState(() => read('localStorage', 'mind-mosaic-name', '')), [code, setCode] = useState(new URLSearchParams(location.search).get('room') ?? ''), [facilitator, setFacilitator] = useState(false), [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
-  const [picks, setPicks] = useState<Record<string, string>>({}), [message, setMessage] = useState(''), [clock, setClock] = useState(Date.now()), [qr, setQr] = useState(''), [sound, setSound] = useState(false), [reduce, setReduce] = useState(false);
-  const session = useRef<Session | null>(read('sessionStorage', 'mind-mosaic-session', null)), offset = useRef(0), audio = useRef<AudioContext | null>(null);
-  const send = useCallback((event: string, data: unknown = {}): Promise<Receipt> => new Promise(resolve => { socket.timeout(8000).emit(event, data, (err: Error | null, receipt: Receipt) => { if (err) { setError('The connection took too long. Your room will reconnect automatically.'); return resolve({ ok: false }); } if (!receipt.ok) setError(receipt.error ?? 'That action could not be completed.'); resolve(receipt); }); }), []);
-  const clearSession = useCallback(() => { session.current = null; keep('sessionStorage', 'mind-mosaic-session', null); setSnapshot(null); }, []);
-  const enter = useCallback(async (event: 'create' | 'join', data: unknown) => { setError(''); const r = await send(event, data); if (r.ok && r.code && r.id && r.token) { session.current = { code: r.code, id: r.id, token: r.token }; keep('sessionStorage', 'mind-mosaic-session', session.current); keep('localStorage', 'mind-mosaic-name', name); setCreateOpen(false); } }, [name, send]);
-  useEffect(() => {
-    socket.on('connect', () => { setConnected(true); if (session.current) void send('resume', session.current).then(r => { if (!r.ok) clearSession(); }); else { const params = new URLSearchParams(location.search); if (params.get('display') === '1' && params.get('room')) void enter('join', { name: 'Shared display', code: params.get('room'), display: true }); } });
-    socket.on('disconnect', () => setConnected(false));
-    socket.on('state', (s: Snapshot) => { offset.current = Date.now() - s.serverTime; setSnapshot(old => !old || old.code !== s.code || s.revision >= old.revision ? s : old); });
-    socket.on('kicked', () => { clearSession(); setError('The host removed your seat from this room.'); });
-    socket.on('replaced', () => { clearSession(); setError('This room session continued in another tab or device.'); });
-    socket.connect(); void fetch('/api/packs').then(r => r.json()).then(setPacks).catch(() => setError('Could not load course packs. Refresh after reconnecting.'));
-    void fetch('/api/info').then(r => r.json()).then(info => { const urls = (info.lan as string[]).sort((a, b) => Number(b.includes('192.168.')) - Number(a.includes('192.168.'))); setLan(urls); setShareBase(urls[0] ?? location.origin); }).catch(() => {});
-    const timer = setInterval(() => setClock(Date.now()), 200);
-    return () => { clearInterval(timer); socket.removeAllListeners(); socket.disconnect(); };
+  const [snapshot, setSnapshot] = useState<Snapshot | null>(null),
+    [connected, setConnected] = useState(false),
+    [error, setError] = useState(""),
+    [toast, setToast] = useState("");
+  const [packs, setPacks] = useState<PackInfo[]>([]),
+    [customPacks, setCustomPacks] = useState<ContentPack[]>(() => {
+      const saved = read<unknown>("localStorage", "mind-mosaic-packs-v1", []);
+      return Array.isArray(saved)
+        ? saved.flatMap((p) => {
+            const parsed = packSchema.safeParse(p);
+            return parsed.success ? [parsed.data] : [];
+          })
+        : [];
+    }),
+    [lan, setLan] = useState<string[]>([]),
+    [shareBase, setShareBase] = useState("");
+  const [selectedMode, setSelectedMode] = useState<Mode>("rally"),
+    [createOpen, setCreateOpen] = useState(false),
+    [studioOpen, setStudioOpen] = useState(false),
+    [rulesOpen, setRulesOpen] = useState(false);
+  const [name, setName] = useState(() =>
+      read("localStorage", "mind-mosaic-name", ""),
+    ),
+    [code, setCode] = useState(
+      new URLSearchParams(location.search).get("room") ?? "",
+    ),
+    [facilitator, setFacilitator] = useState(false),
+    [settings, setSettings] = useState<Settings>({ ...DEFAULT_SETTINGS });
+  const [picks, setPicks] = useState<Record<string, string>>({}),
+    [message, setMessage] = useState(""),
+    [clock, setClock] = useState(Date.now()),
+    [qr, setQr] = useState(""),
+    [sound, setSound] = useState(false),
+    [reduce, setReduce] = useState(false);
+  const session = useRef<Session | null>(
+      read("sessionStorage", "mind-mosaic-session", null),
+    ),
+    offset = useRef(0),
+    audio = useRef<AudioContext | null>(null);
+  const send = useCallback(
+    (event: string, data: unknown = {}): Promise<Receipt> =>
+      new Promise((resolve) => {
+        socket
+          .timeout(8000)
+          .emit(event, data, (err: Error | null, receipt: Receipt) => {
+            if (err) {
+              setError(
+                "The connection took too long. Your room will reconnect automatically.",
+              );
+              return resolve({ ok: false });
+            }
+            if (!receipt.ok)
+              setError(receipt.error ?? "That action could not be completed.");
+            resolve(receipt);
+          });
+      }),
+    [],
+  );
+  const clearSession = useCallback(() => {
+    session.current = null;
+    keep("sessionStorage", "mind-mosaic-session", null);
+    setSnapshot(null);
   }, []);
-  useEffect(() => { setPicks({}); }, [snapshot?.roundIndex, snapshot?.phase, snapshot?.currentQuestion]);
+  const enter = useCallback(
+    async (event: "create" | "join", data: unknown) => {
+      setError("");
+      const r = await send(event, data);
+      if (r.ok && r.code && r.id && r.token) {
+        session.current = { code: r.code, id: r.id, token: r.token };
+        keep("sessionStorage", "mind-mosaic-session", session.current);
+        keep("localStorage", "mind-mosaic-name", name);
+        setCreateOpen(false);
+      }
+    },
+    [name, send],
+  );
+  useEffect(() => {
+    socket.on("connect", () => {
+      setConnected(true);
+      if (session.current)
+        void send("resume", session.current).then((r) => {
+          if (!r.ok) clearSession();
+        });
+      else {
+        const params = new URLSearchParams(location.search);
+        if (params.get("display") === "1" && params.get("room"))
+          void enter("join", {
+            name: "Shared display",
+            code: params.get("room"),
+            display: true,
+          });
+      }
+    });
+    socket.on("disconnect", (reason) => {
+      setConnected(false);
+      if (reason === "io server disconnect" && !session.current)
+        socket.connect();
+    });
+    socket.on("state", (s: Snapshot) => {
+      offset.current = Date.now() - s.serverTime;
+      setSnapshot((old) =>
+        !old || old.code !== s.code || s.revision >= old.revision ? s : old,
+      );
+    });
+    socket.on("kicked", () => {
+      clearSession();
+      setError("The host removed your seat from this room.");
+    });
+    socket.on("replaced", () => {
+      clearSession();
+      setError("This room session continued in another tab or device.");
+    });
+    socket.connect();
+    void fetch("/api/packs")
+      .then((r) => r.json())
+      .then(setPacks)
+      .catch(() =>
+        setError("Could not load course packs. Refresh after reconnecting."),
+      );
+    void fetch("/api/info")
+      .then((r) => r.json())
+      .then((info) => {
+        const urls = (info.lan as string[]).sort(
+          (a, b) =>
+            Number(b.includes("192.168.")) - Number(a.includes("192.168.")),
+        );
+        setLan(urls);
+        setShareBase(
+          ["localhost", "127.0.0.1"].includes(location.hostname)
+            ? (urls[0] ?? location.origin)
+            : location.origin,
+        );
+      })
+      .catch(() => {});
+    const timer = setInterval(() => setClock(Date.now()), 200);
+    return () => {
+      clearInterval(timer);
+      socket.removeAllListeners();
+      socket.disconnect();
+    };
+  }, []);
+  useEffect(() => {
+    setPicks({});
+  }, [snapshot?.roundIndex, snapshot?.phase, snapshot?.currentQuestion]);
   useEffect(() => {
     if (!createOpen && !studioOpen && !rulesOpen) return;
-    const dialog = document.querySelector<HTMLElement>('[role="dialog"]'); if (!dialog) return;
+    const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
+    if (!dialog) return;
     const previous = document.activeElement as HTMLElement | null;
-    const background = [...document.querySelectorAll<HTMLElement>('.app > header, .app > main')];
-    background.forEach(el => { el.inert = true; });
-    const controls = () => [...dialog.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href], [tabindex="0"]')].filter(el => el.offsetParent !== null);
+    const background = [
+      ...document.querySelectorAll<HTMLElement>(".app > header, .app > main"),
+    ];
+    background.forEach((el) => {
+      el.inert = true;
+    });
+    const controls = () =>
+      [
+        ...dialog.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, [tabindex="0"]',
+        ),
+      ].filter((el) => el.offsetParent !== null);
     if (!dialog.contains(document.activeElement)) controls()[0]?.focus();
     const keyboard = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { setCreateOpen(false); setStudioOpen(false); setRulesOpen(false); }
-      if (event.key === 'Tab') { const items = controls(), first = items[0], last = items.at(-1); if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } }
+      if (event.key === "Escape") {
+        setCreateOpen(false);
+        setStudioOpen(false);
+        setRulesOpen(false);
+      }
+      if (event.key === "Tab") {
+        const items = controls(),
+          first = items[0],
+          last = items.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
     };
-    document.addEventListener('keydown', keyboard);
-    return () => { background.forEach(el => { el.inert = false; }); document.removeEventListener('keydown', keyboard); if (previous && !dialog.contains(previous)) previous.focus(); else document.querySelector<HTMLElement>('header button')?.focus(); };
+    document.addEventListener("keydown", keyboard);
+    return () => {
+      background.forEach((el) => {
+        el.inert = false;
+      });
+      document.removeEventListener("keydown", keyboard);
+      if (previous && !dialog.contains(previous)) previous.focus();
+      else document.querySelector<HTMLElement>("header button")?.focus();
+    };
   }, [createOpen, studioOpen, rulesOpen]);
-  useEffect(() => { if (toast) { const t = setTimeout(() => setToast(''), 3500); return () => clearTimeout(t); } }, [toast]);
-  useEffect(() => { if (sound && snapshot?.phase && ['study', 'answer', 'reveal'].includes(snapshot.phase) && audio.current) { const osc = audio.current.createOscillator(), gain = audio.current.createGain(); osc.connect(gain); gain.connect(audio.current.destination); osc.frequency.value = snapshot.phase === 'reveal' ? 660 : 440; gain.gain.setValueAtTime(.055, audio.current.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audio.current.currentTime + .18); osc.start(); osc.stop(audio.current.currentTime + .18); } }, [snapshot?.phase, sound]);
-  const shareUrl = snapshot ? `${['localhost', '127.0.0.1'].includes(location.hostname) ? shareBase || location.origin : location.origin}/?room=${snapshot.code}` : '';
-  useEffect(() => { if (shareUrl) void QRCode.toDataURL(shareUrl, { width: 140, margin: 1, color: { dark: '#293731', light: '#ffffff' } }).then(setQr).catch(() => {}); }, [shareUrl]);
-  const allPacks = [...packs, ...customPacks.map(({ facts, ...p }) => ({ ...p, count: facts.length }))];
-  const s = snapshot, self = s?.players.find(p => p.id === s.selfId), players = s?.players.filter(p => p.role === 'player') ?? [], remaining = s?.deadline ? Math.max(0, Math.ceil((s.deadline - (clock - offset.current)) / 1000)) : null;
-  const changeSettings = (value: Settings) => { const customPack = customPacks.find(p => p.id === value.packId); if (s) void send('settings', { settings: value, customPack }); else setSettings(value); };
-  async function copy(value: string) { try { await navigator.clipboard.writeText(value); setToast('Copied. Invite a curious mind!'); } catch { setError(`Copy this: ${value}`); } }
-  async function leave() { const r = await send('leave'); if (r.ok) { clearSession(); history.replaceState(null, '', '/'); } }
-  const select = (id: string, value: string) => { if (!s) return; if (s.phase === 'discuss') { void send(s.captainId === s.selfId ? 'board' : 'propose', { questionId: id, optionId: value }); } else { setPicks(p => ({ ...p, [id]: value })); if (s.settings.mode === 'frenzy' && s.phase === 'answer') void send('answer', { answers: { [id]: value } }); } };
-  const notify = (text: string) => { setToast(text); setError(''); };
-  return <div className={`app ${reduce ? 'reduce-motion' : ''}`}><header className="site-header"><a className="brand" href="/" onClick={e => { if (s) e.preventDefault(); }}><MosaicLogo/><span>mind<span className="brand-light">mosaic</span></span></a><div className="header-actions"><button className="text-button" onClick={() => setRulesOpen(true)}>How to play</button><button className="icon-button" aria-label={sound ? 'Mute sounds' : 'Enable sounds'} title={sound ? 'Mute sounds' : 'Enable sounds'} onClick={() => { if (!audio.current) audio.current = new AudioContext(); void audio.current.resume(); setSound(v => !v); }}>{sound ? '♪' : '♩'}</button><button className="icon-button" aria-label="Toggle reduced motion" title="Reduced motion" aria-pressed={reduce} onClick={() => setReduce(v => !v)}>◌</button>{s && <button className="text-button" onClick={() => void leave()}>Leave</button>}</div></header>
-    {!connected && <div role="status" className="connection-banner">{s ? 'Reconnecting to your room…' : 'Connecting to the memory lab…'}</div>}
-    {error && <div className="error-toast" role="alert"><span>{error}</span><button onClick={() => setError('')} aria-label="Dismiss error">×</button></div>}{toast && <div className="success-toast" role="status">{toast}</div>}
-    {!s ? <main className="home"><section className="hero"><div className="hero-copy"><span className="eyebrow"><span className="tiny-dot"/> 2–8 PLAYERS · ONE CURIOUS GROUP</span><h1>A little memory.<br/><em>A lot of discovery.</em></h1><p>Remember the details. Compare your recollections.<br className="desktop-break"/> Find out what happens when minds meet.</p><div className="hero-actions"><button className="primary large" disabled={!connected} onClick={() => { setSettings(v => ({ ...v, mode: selectedMode })); setCreateOpen(true); }}>Create a room <span>↗</span></button><span>No accounts. Just good company.</span></div></div><HeroArt/></section><section className="choose-section"><div className="section-heading"><div><span className="eyebrow">THREE WAYS TO MAKE MEMORIES</span><h2>What’s your group’s mood?</h2></div><span className="muted">Same curious minds. Different adventures.</span></div><ModeCards value={selectedMode} onChange={setSelectedMode}/></section><section className="join-section"><div><span className="eyebrow">ALREADY INVITED?</span><h2>There’s a place for you.</h2><p className="muted">Enter your name and the host’s room code.</p></div><form className="join-form" onSubmit={e => { e.preventDefault(); void enter('join', { name: name.trim(), code }); }}><label>Your name<input required maxLength={20} value={name} onChange={e => setName(e.target.value)} placeholder="A curious mind" autoComplete="nickname"/></label><label>Room code<input required maxLength={6} className="code-input" value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z2-9]/g, ''))} placeholder="ABC234" autoCapitalize="characters" spellCheck={false}/></label><button className="secondary" disabled={!connected}>Join room →</button></form></section><footer className="home-footer"><span>A playful little lab for how we remember.</span><button className="text-button" onClick={() => setStudioOpen(true)}>Make your own course pack ↗</button></footer></main> : <main className="room"><div className="room-topline"><div><span className="eyebrow">{s.practice ? 'UNSCORED PRACTICE' : MODE_NAMES[s.settings.mode]} <span className="separator">/</span> {s.packName}</span>{s.phase !== 'lobby' && <span className="round-position">Round {Math.min(s.roundIndex + 1, s.roundCount)} of {s.roundCount}</span>}</div><button className="room-chip" onClick={() => void copy(s.code)} title="Copy room code">ROOM <strong>{s.code}</strong> ⧉</button></div>
-      {s.phase === 'lobby' ? <><div className="lobby-title"><span className="eyebrow">A GOOD TIME STARTS WITH GOOD COMPANY</span><h1>Gather your curious minds.</h1><p>{s.isHost ? 'Set the mood. Share the code. Let’s see what you remember.' : 'You’re in. Check the rules, then let your host know you’re ready.'}</p></div><ModeCards compact value={s.settings.mode} disabled={!s.isHost} onChange={mode => changeSettings({ ...s.settings, mode })}/><div className="lobby-grid"><section className="panel"><div className="section-heading"><h2>Make it your match</h2><span className="pill">{s.isHost ? 'Host controls' : 'Chosen by your host'}</span></div><SettingsPanel value={s.settings} onChange={changeSettings} packs={allPacks.some(p => p.id === s.settings.packId) ? allPacks : [...allPacks, { version: 1, id: s.settings.packId, name: s.packName, school: 'Host’s collection', course: '', description: 'A custom content pack chosen by your host.', count: 0 }]} disabled={!s.isHost}/><p className="rules-note">{s.settings.mode === 'team' ? `One team. ${s.settings.target}% correct to win. Your captain confirms six answers each round.` : s.settings.mode === 'frenzy' ? '100 per correct answer + up to 25 for speed. A correct answer in the first second earns 25 extra; the bonus drops by 5 each second.' : '100 per correct answer. Take your time within the timer. Ties share the win.'} {s.settings.rounds} rounds. No elimination.</p></section><section className="panel people-panel"><div className="section-heading"><h2>The curious crew</h2><span className="pill">{players.length} / 8 players</span></div><div className="people">{s.players.filter(p => p.role !== 'display').map(p => <div className="person" key={p.id}><span className={`avatar color-${p.color}`}>{p.name.slice(0, 1).toUpperCase()}</span><div><strong>{p.name}{p.id === s.selfId ? ' (you)' : ''}</strong><small>{p.id === s.hostId ? 'Host' : p.role === 'spectator' ? 'Joins next match' : p.role === 'facilitator' ? 'Facilitator' : 'Player'}{!p.connected ? ' · disconnected' : ''}</small></div><span className={`ready-tag ${p.ready ? 'ready' : ''}`}>{p.role === 'player' ? p.ready ? '✓ Ready' : 'Getting ready' : 'Watching'}</span>{s.isHost && p.id !== s.selfId && <button className="remove-button" title={`Remove ${p.name}`} aria-label={`Remove ${p.name}`} onClick={() => void send('kick', { id: p.id })}>×</button>}</div>)}</div><div className="invite-box">{qr && <img src={qr} alt={`Scan to join room ${s.code}`}/>}<div><strong>Bring another mind.</strong><p>Share the link or scan from a phone on the same network.</p><input aria-label="Room invite link" readOnly value={shareUrl} onFocus={e => e.target.select()}/><button className="text-button" onClick={() => void copy(shareUrl)}>Copy invite ↗</button></div></div>{lan.length > 1 && ['localhost', '127.0.0.1'].includes(location.hostname) && <label>Network address<select value={shareBase} onChange={e => setShareBase(e.target.value)}>{lan.map(url => <option key={url}>{url}</option>)}</select></label>}<button className="text-button" onClick={() => window.open(`/?room=${s.code}&display=1`, '_blank', 'noopener')}>Open shared display ↗</button></section></div><div className="lobby-actions">{self?.role === 'player' && <button className={self.ready ? 'secondary' : 'primary'} onClick={() => void send('ready', { ready: !self.ready })}>{self.ready ? '✓ You’re ready' : 'I’m ready'}</button>}{s.isHost && <><button className="primary" disabled={players.filter(p => p.connected && p.ready).length < 2 || players.some(p => p.connected && !p.ready)} onClick={() => void send('start')}>Start the adventure →</button>{self?.role === 'player' && <button className="text-button" onClick={() => void send('start', { practice: true })}>Try one unscored practice round</button>}</>}{!s.isHost && <span className="muted">Your host starts when everyone is ready.</span>}</div></> : <><div className="play-layout"><section className="play-stage"><div className="stage-top"><span className="phase-pill">{{ countdown: 'Get ready', study: 'Take it in', answer: 'Recall', private: 'Your own recollection', discuss: 'Put your heads together', reveal: 'The picture comes together', finished: 'A memory worth sharing', paused: 'A little pause', lobby: 'Lobby' }[s.phase]}</span>{remaining !== null && <div className={`timer ${remaining <= 5 ? 'urgent' : ''}`} role="timer" aria-label={`${remaining} seconds remaining`}><span>◷</span> {remaining}<small>s</small></div>}</div>
-        {s.phase === 'countdown' && <div className="countdown-screen"><ObjectArt icon={modeCopy[s.settings.mode].icon}/><span className="eyebrow">{s.title}</span><h2>{s.instruction}</h2><div className="countdown-number">{remaining}</div>{s.settings.mode === 'team' && <p>First remember privately. Then share what you recall.</p>}</div>}
-        {s.phase === 'study' && <><div className="stage-heading"><h2>{s.title}</h2><p>{s.instruction}</p></div>{s.study ? <StudyBoard study={s.study}/> : <div className="waiting-screen"><ObjectArt icon="book"/><h2>Each player has a different fragment.</h2><p>Watch the timer. Their memories will meet in a moment.</p></div>}</>}
-        {(s.phase === 'answer' || s.phase === 'private') && (self?.role !== 'player' ? <div className="waiting-screen"><ObjectArt icon="clock"/><h2>The crew is remembering.</h2><p>Private answers stay on their devices until the reveal.</p></div> : <><Deck questions={s.questions} selections={picks} onSelect={select} disabled={s.locked || !connected} selfId={s.selfId}/>{s.locked ? <div className="locked-message" role="status">✓ Your recollection is locked. {s.settings.mode === 'frenzy' ? 'The next prompt arrives when the timer ends.' : 'Waiting for the rest of the crew.'}</div> : s.settings.mode !== 'frenzy' || s.phase === 'private' ? <div className="answer-footer"><span className="muted">{Object.keys(picks).length} / {s.questions.length} selected · missing answers score 0</span><button className="primary" disabled={!connected} onClick={() => void send('answer', { answers: picks })}>{s.phase === 'private' ? 'Save my recollection →' : 'Lock my answers →'}</button></div> : <p className="rules-note centered">Choose once to lock your answer. Accuracy earns 100; speed adds up to 25.</p>}</>)}
-        {s.phase === 'discuss' && <><div className="stage-heading"><h2>Different pieces. One picture.</h2><p>{s.captainId === s.selfId ? 'You’re the captain. Use the clues to fill the team board.' : `${s.players.find(p => p.id === s.captainId)?.name ?? 'Your captain'} confirms the board. Choose an option to share your remembered clue.`}</p></div><Deck questions={s.questions} selections={s.teamBoard} onSelect={select} disabled={self?.role !== 'player' || !connected} team={s} selfId={s.selfId}/><div className="answer-footer"><span className="muted">{Object.keys(s.teamBoard).length} / 6 team answers filled</span>{s.captainId === s.selfId && <button className="primary" disabled={Object.keys(s.teamBoard).length < 6 || !connected} onClick={() => void send('lock')}>Confirm team answer →</button>}</div><details className="clue-details"><summary>Remembered clue cards ({s.proposals.length})</summary><div className="clue-list">{s.proposals.map(p => { const question = s.questions.find(q => q.id === p.questionId); return <div key={p.playerId + p.questionId}><strong>{s.players.find(m => m.id === p.playerId)?.name}</strong><span>{question?.text}</span><b>{question?.options.find(o => o.id === p.optionId)?.label}</b></div>; })}</div></details></>}
-        {s.phase === 'reveal' && s.result && <><div className="stage-heading"><h2>Here’s what we remembered.</h2><p>{s.settings.mode === 'team' ? `The crew recalled ${s.result.recalledFacts} of 6 answers somewhere before discussion. The team recovered ${s.result.teamRecovered} more.` : 'Every recollection adds a piece to the picture.'}</p></div><div className="reveal-grid">{s.result.answers.map((a, i) => { const correct = a.yours === a.correct, choice = a.question.options.find(o => o.id === a.correct); return <div key={a.question.id} className={`reveal-tile ${correct ? 'right' : ''}`}><span className="eyebrow">PIECE {i + 1} <span>{self?.role === 'player' ? correct ? '✓' : '×' : '◌'}</span></span><p>{a.question.text}</p>{choice?.icon && <ObjectArt icon={choice.icon}/>}<strong>{choice?.label}</strong><small>{self?.role === 'player' ? `${correct ? 'Remembered' : a.yours ? `You chose ${a.question.options.find(o => o.id === a.yours)?.label}` : 'No answer'} · ${a.points} points` : `${a.correctCount}/${a.attempts} recalled this privately`}</small><div className="memory-dots" aria-label={`${a.correctCount} of ${a.attempts} privately recalled this correctly`}>{Array.from({ length: a.attempts }, (_, n) => <i className={n < a.correctCount ? 'filled' : ''} key={n}/>)}</div>{a.source && <Source source={a.source}/>}</div>; })}</div><div className="science-note"><span className="eyebrow">A LITTLE SCIENCE BEHIND THE SCENE</span><p>{s.result.explanation}</p><Source source={s.result.source}/></div>{s.isHost && <button className="primary" onClick={() => void send('next')}>{s.roundIndex + 1 === s.roundCount ? 'See our memory mosaic →' : 'Next round →'}</button>}{!s.isHost && s.settings.classroom && <p className="muted">Your host will continue when the group is ready.</p>}</>}
-        {s.phase === 'paused' && <div className="waiting-screen"><ObjectArt icon="mug"/><h2>We saved your place.</h2><p>{s.pauseReason}</p>{s.isHost && <div className="button-row"><button className="primary" onClick={() => void send('next')}>Restart this round →</button><button className="secondary" onClick={() => void send('rematch')}>Return to lobby</button></div>}</div>}
-        {s.phase === 'finished' && s.final && <><div className="final-heading"><ObjectArt icon={s.settings.mode === 'team' ? 'book' : 'star'}/><span className="eyebrow">{s.practice ? 'A LITTLE WARM-UP' : 'YOUR MEMORY MOSAIC'}</span><h1>{s.practice ? 'Ready for good company.' : s.settings.mode === 'team' ? s.final.teamWin ? 'Look what you remembered together.' : 'Every piece taught us something.' : `${s.final.winners.join(' & ')}${s.final.winners.length > 1 ? ' share the win.' : ' takes the win.'}`}</h1><p>{s.practice ? 'Practice complete. Invite another player for a scored match.' : s.settings.mode === 'team' ? `${s.teamCorrect} correct · goal ${s.goal} of ${s.roundCount * 6} · ${s.final.teamWin ? 'Team goal reached!' : 'Try another strategy next time.'}` : `${s.final.roundsCompleted} rounds. A whole collection of little discoveries.`}</p></div><div className="final-mosaic" aria-label="One mosaic tile per scored decision">{s.final.mosaic.map((cell, i) => <div key={i} title={`${cell.text} — ${cell.count}/${cell.total} recalled privately`} className={(self?.role === 'player' ? cell.correct : cell.count > 0) ? 'remembered' : 'missed'}><span>{(self?.role === 'player' ? cell.correct : cell.count > 0) ? '✦' : '◌'}</span></div>)}</div><div className="comparison-list">{s.final.comparisons.map(c => <div key={c.condition}><span>{c.condition}</span><strong>{c.correct} / {c.total}</strong><div className="comparison-track"><i style={{ width: `${c.total ? c.correct / c.total * 100 : 0}%` }}/></div></div>)}</div><p className="rules-note centered">These counts describe this match. They are a starting point for discussion, not an ability assessment or proof of an effect.</p>{s.isHost ? <button className="primary large" onClick={() => void send('rematch')}>Make another memory →</button> : <p className="muted centered">Your host can start a fresh match in this room.</p>}</>}
-      </section><aside className="play-sidebar"><section className="panel score-panel"><span className="eyebrow">{s.settings.mode === 'team' ? 'ONE CREW, ONE GOAL' : 'THE CURIOUS CREW'}</span>{s.settings.mode === 'team' && <div className="team-progress"><strong>{s.teamCorrect}<small> / {s.goal}</small></strong><span>correct answers toward our goal</span><div className="comparison-track"><i style={{ width: `${Math.min(100, s.teamCorrect / s.goal * 100)}%` }}/></div></div>}{s.players.filter(p => p.role === 'player' || p.score > 0).sort((a, b) => b.score - a.score).map(p => <div className="score-person" key={p.id}><span className={`avatar color-${p.color}`}>{p.name.slice(0, 1).toUpperCase()}</span><span><strong>{p.name}{p.id === s.selfId ? ' · you' : ''}</strong><small>{!p.connected ? 'Reconnecting' : ['answer', 'private'].includes(s.phase) && p.submitted ? '✓ Recollection locked' : p.id === s.captainId ? 'Team captain' : 'A curious mind'}</small></span>{s.settings.mode !== 'team' && <b>{p.score}</b>}</div>)}</section>{s.settings.chat && ['lobby', 'discuss', 'reveal', 'finished'].includes(s.phase) && self?.role !== 'display' && <section className="panel chat-panel"><span className="eyebrow">ROOM CHAT</span><div className="chat-messages" aria-live="polite">{s.chat.length ? s.chat.map(m => <p key={m.id}><strong>{m.name}</strong><span>{m.text}</span></p>) : <p className="muted">A place to share a thought.</p>}</div><form onSubmit={e => { e.preventDefault(); if (message.trim()) void send('chat', { text: message }).then(r => { if (r.ok) setMessage(''); }); }}><input aria-label="Chat message" value={message} maxLength={240} onChange={e => setMessage(e.target.value)} placeholder="A little thought…"/><button className="icon-button" aria-label="Send message" disabled={!connected || !message.trim()}>↑</button></form></section>}</aside></div></>}
-    </main>}
-    {createOpen && <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-label="Create a room"><button className="modal-close" onClick={() => setCreateOpen(false)} aria-label="Close create room">×</button><span className="eyebrow">MAKE A LITTLE ROOM FOR DISCOVERY</span><h2>Your adventure starts here.</h2><form onSubmit={e => { e.preventDefault(); void enter('create', { name: name.trim(), facilitator, settings, customPack: customPacks.find(p => p.id === settings.packId) }); }}><label>Your name<input required maxLength={20} value={name} onChange={e => setName(e.target.value)} placeholder="A curious mind" autoFocus/></label><SettingsPanel value={settings} onChange={setSettings} packs={allPacks}/><label className="checkbox-label"><input type="checkbox" checked={facilitator} onChange={e => setFacilitator(e.target.checked)}/> I’ll facilitate without taking a player seat</label><button className="primary full" disabled={!connected}>Create {MODE_NAMES[settings.mode]} room →</button></form></section></div>}
-    {studioOpen && <Studio packs={customPacks} onClose={() => setStudioOpen(false)} onSave={p => { const next = [...customPacks.filter(old => old.id !== p.id), p]; setCustomPacks(next); keep('localStorage', 'mind-mosaic-packs-v1', next); notify('Saved on this device. Choose your collection when creating a room.'); }}/>} 
-    {rulesOpen && <div className="modal-backdrop"><section className="modal rules-modal" role="dialog" aria-modal="true" aria-label="How to play"><button className="modal-close" onClick={() => setRulesOpen(false)} aria-label="Close rules">×</button><span className="eyebrow">A QUICK FIELD GUIDE</span><h2>Remember. Reveal. Discover.</h2><ol><li><strong>Join your crew.</strong> Two to eight players enter a room code on their own devices. A host can facilitate or play.</li><li><strong>Take it in.</strong> Study a scene, a sequence, or six little facts. The material disappears before recall.</li><li><strong>Make your choices.</strong> Recall Rally awards 100 per correct answer. Focus Frenzy adds up to 25 for speed. Missing and wrong answers score zero; ties share the win.</li><li><strong>Or remember together.</strong> In Team Mosaic, remember your fragment privately, then share clue cards. The captain fills and confirms six team answers. The default goal is 26 correct out of 36.</li><li><strong>See the picture.</strong> After each round, compare recollections and explore a short explanation. Six rounds are the default, with four or ten available.</li></ol><p className="rules-note">You learn course facts before recalling them, so newcomers can play. These are playful demonstrations, not scientific measurements of ability. Try an unscored practice round from your room’s lobby.</p><button className="primary" onClick={() => setRulesOpen(false)}>Got it. Let’s remember →</button></section></div>}
-  </div>;
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(""), 3500);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
+  useEffect(() => {
+    if (
+      sound &&
+      snapshot?.phase &&
+      ["study", "answer", "reveal"].includes(snapshot.phase) &&
+      audio.current
+    ) {
+      const osc = audio.current.createOscillator(),
+        gain = audio.current.createGain();
+      osc.connect(gain);
+      gain.connect(audio.current.destination);
+      osc.frequency.value = snapshot.phase === "reveal" ? 660 : 440;
+      gain.gain.setValueAtTime(0.055, audio.current.currentTime);
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audio.current.currentTime + 0.18,
+      );
+      osc.start();
+      osc.stop(audio.current.currentTime + 0.18);
+    }
+  }, [snapshot?.phase, sound]);
+  const shareUrl = snapshot
+    ? `${["localhost", "127.0.0.1"].includes(location.hostname) ? shareBase || location.origin : location.origin}/?room=${snapshot.code}`
+    : "";
+  useEffect(() => {
+    if (shareUrl)
+      void QRCode.toDataURL(shareUrl, {
+        width: 140,
+        margin: 1,
+        color: { dark: "#293731", light: "#ffffff" },
+      })
+        .then(setQr)
+        .catch(() => {});
+  }, [shareUrl]);
+  const allPacks = [
+    ...packs,
+    ...customPacks.map(({ facts, ...p }) => ({ ...p, count: facts.length })),
+  ];
+  const s = snapshot,
+    self = s?.players.find((p) => p.id === s.selfId),
+    players = s?.players.filter((p) => p.role === "player") ?? [],
+    remaining = s?.deadline
+      ? Math.max(0, Math.ceil((s.deadline - (clock - offset.current)) / 1000))
+      : null;
+  const changeSettings = (value: Settings) => {
+    const customPack = customPacks.find((p) => p.id === value.packId);
+    if (s) void send("settings", { settings: value, customPack });
+    else setSettings(value);
+  };
+  async function copy(value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setToast("Copied. Invite a curious mind!");
+    } catch {
+      setError(`Copy this: ${value}`);
+    }
+  }
+  async function leave() {
+    const r = await send("leave");
+    if (r.ok) {
+      clearSession();
+      history.replaceState(null, "", "/");
+    }
+  }
+  const select = (id: string, value: string) => {
+    if (!s) return;
+    if (s.phase === "discuss") {
+      void send(s.captainId === s.selfId ? "board" : "propose", {
+        questionId: id,
+        optionId: value,
+      });
+    } else {
+      setPicks((p) => ({ ...p, [id]: value }));
+      if (s.settings.mode === "frenzy" && s.phase === "answer")
+        void send("answer", { answers: { [id]: value } });
+    }
+  };
+  const notify = (text: string) => {
+    setToast(text);
+    setError("");
+  };
+  return (
+    <div className={`app ${reduce ? "reduce-motion" : ""}`}>
+      <header className="site-header">
+        <a
+          className="brand"
+          href="/"
+          onClick={(e) => {
+            if (s) e.preventDefault();
+          }}
+        >
+          <MosaicLogo />
+          <span>
+            mind<span className="brand-light">mosaic</span>
+          </span>
+        </a>
+        <div className="header-actions">
+          <button className="text-button" onClick={() => setRulesOpen(true)}>
+            How to play
+          </button>
+          {s?.phase === "lobby" && s.isHost && (
+            <button className="text-button" onClick={() => setStudioOpen(true)}>
+              Course studio
+            </button>
+          )}
+          {!s && (
+            <a
+              className="text-button setup-link"
+              href="/online-setup.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Online setup ↗
+            </a>
+          )}
+          <button
+            className="icon-button"
+            aria-label={sound ? "Mute sounds" : "Enable sounds"}
+            title={sound ? "Mute sounds" : "Enable sounds"}
+            onClick={() => {
+              if (!audio.current) audio.current = new AudioContext();
+              void audio.current.resume();
+              setSound((v) => !v);
+            }}
+          >
+            {sound ? "♪" : "♩"}
+          </button>
+          <button
+            className="icon-button"
+            aria-label="Toggle reduced motion"
+            title="Reduced motion"
+            aria-pressed={reduce}
+            onClick={() => setReduce((v) => !v)}
+          >
+            ◌
+          </button>
+          {s && (
+            <button className="text-button" onClick={() => void leave()}>
+              Leave
+            </button>
+          )}
+        </div>
+      </header>
+      {!connected && (
+        <div role="status" className="connection-banner">
+          {s ? "Reconnecting to your room…" : "Connecting to the memory lab…"}
+        </div>
+      )}
+      {error && (
+        <div className="error-toast" role="alert">
+          <span>{error}</span>
+          <button onClick={() => setError("")} aria-label="Dismiss error">
+            ×
+          </button>
+        </div>
+      )}
+      {toast && (
+        <div className="success-toast" role="status">
+          {toast}
+        </div>
+      )}
+      {s?.voice?.enabled && (
+        <details className="room-tools">
+          <summary>
+            Room voice · {s.voice.speakingAllowed ? "open" : "quiet recall"}
+          </summary>
+          <Voice key={`${s.code}:${s.selfId}`} snapshot={s} send={send} />
+          <a
+            href="/online-setup.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="source-link"
+          >
+            Online setup ↗
+          </a>
+        </details>
+      )}
+      {!s ? (
+        <main className="home">
+          <section className="hero">
+            <div className="hero-copy">
+              <span className="eyebrow">
+                <span className="tiny-dot" /> 2–8 PLAYERS · ONE CURIOUS GROUP
+              </span>
+              <h1>
+                A little memory.
+                <br />
+                <em>A lot of discovery.</em>
+              </h1>
+              <p>
+                Remember the details. Compare your recollections.
+                <br className="desktop-break" /> Find out what happens when
+                minds meet.
+              </p>
+              <div className="hero-actions">
+                <button
+                  className="primary large"
+                  disabled={!connected}
+                  onClick={() => {
+                    setSettings((v) => ({ ...v, mode: selectedMode }));
+                    setCreateOpen(true);
+                  }}
+                >
+                  Create a room <span>↗</span>
+                </button>
+                <span>No accounts. Just good company.</span>
+              </div>
+            </div>
+            <HeroArt />
+          </section>
+          <section className="choose-section">
+            <div className="section-heading">
+              <div>
+                <span className="eyebrow">THREE WAYS TO MAKE MEMORIES</span>
+                <h2>What’s your group’s mood?</h2>
+              </div>
+              <span className="muted">
+                Same curious minds. Different adventures.
+              </span>
+            </div>
+            <ModeCards value={selectedMode} onChange={setSelectedMode} />
+          </section>
+          <section className="join-section">
+            <div>
+              <span className="eyebrow">ALREADY INVITED?</span>
+              <h2>There’s a place for you.</h2>
+              <p className="muted">Enter your name and the host’s room code.</p>
+            </div>
+            <form
+              className="join-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void enter("join", { name: name.trim(), code });
+              }}
+            >
+              <label>
+                Your name
+                <input
+                  required
+                  maxLength={20}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="A curious mind"
+                  autoComplete="nickname"
+                />
+              </label>
+              <label>
+                Room code
+                <input
+                  required
+                  maxLength={6}
+                  className="code-input"
+                  value={code}
+                  onChange={(e) =>
+                    setCode(
+                      e.target.value.toUpperCase().replace(/[^A-Z2-9]/g, ""),
+                    )
+                  }
+                  placeholder="ABC234"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                />
+              </label>
+              <button className="secondary" disabled={!connected}>
+                Join room →
+              </button>
+            </form>
+          </section>
+          <footer className="home-footer">
+            <span>A playful little lab for how we remember.</span>
+            <button className="text-button" onClick={() => setStudioOpen(true)}>
+              Make your own course pack ↗
+            </button>
+          </footer>
+        </main>
+      ) : (
+        <main className="room">
+          <div className="room-topline">
+            <div>
+              <span className="eyebrow">
+                {s.practice ? "UNSCORED PRACTICE" : MODE_NAMES[s.settings.mode]}{" "}
+                <span className="separator">/</span> {s.packName}
+              </span>
+              {s.phase !== "lobby" && (
+                <span className="round-position">
+                  Round {Math.min(s.roundIndex + 1, s.roundCount)} of{" "}
+                  {s.roundCount}
+                </span>
+              )}
+            </div>
+            <button
+              className="room-chip"
+              onClick={() => void copy(s.code)}
+              title="Copy room code"
+            >
+              ROOM <strong>{s.code}</strong> ⧉
+            </button>
+          </div>
+          {s.phase === "lobby" ? (
+            <>
+              <div className="lobby-title">
+                <span className="eyebrow">
+                  A GOOD TIME STARTS WITH GOOD COMPANY
+                </span>
+                <h1>Gather your curious minds.</h1>
+                <p>
+                  {s.isHost
+                    ? "Set the mood. Share the code. Let’s see what you remember."
+                    : "You’re in. Check the rules, then let your host know you’re ready."}
+                </p>
+              </div>
+              <ModeCards
+                compact
+                value={s.settings.mode}
+                disabled={!s.isHost}
+                onChange={(mode) => changeSettings({ ...s.settings, mode })}
+              />
+              <div className="lobby-grid">
+                <section className="panel">
+                  <div className="section-heading">
+                    <h2>Make it your match</h2>
+                    <span className="pill">
+                      {s.isHost ? "Host controls" : "Chosen by your host"}
+                    </span>
+                  </div>
+                  <SettingsPanel
+                    value={s.settings}
+                    onChange={changeSettings}
+                    packs={
+                      allPacks.some((p) => p.id === s.settings.packId)
+                        ? allPacks
+                        : [
+                            ...allPacks,
+                            {
+                              version: 1,
+                              id: s.settings.packId,
+                              name: s.packName,
+                              school: "Host’s collection",
+                              course: "",
+                              description:
+                                "A custom content pack chosen by your host.",
+                              count: 0,
+                            },
+                          ]
+                    }
+                    disabled={!s.isHost}
+                  />
+                  <p className="rules-note">
+                    {s.settings.mode === "team"
+                      ? `One team. ${s.settings.target}% correct to win. Your captain confirms six answers each round.`
+                      : s.settings.mode === "frenzy"
+                        ? "100 per correct answer + up to 25 for speed. A correct answer in the first second earns 25 extra; the bonus drops by 5 each second."
+                        : "100 per correct answer. Take your time within the timer. Ties share the win."}{" "}
+                    {s.settings.rounds} rounds. No elimination.
+                  </p>
+                </section>
+                <section className="panel people-panel">
+                  <div className="section-heading">
+                    <h2>The curious crew</h2>
+                    <span className="pill">{players.length} / 8 players</span>
+                  </div>
+                  <div className="people">
+                    {s.players
+                      .filter((p) => p.role !== "display")
+                      .map((p) => (
+                        <div className="person" key={p.id}>
+                          <span className={`avatar color-${p.color}`}>
+                            {p.name.slice(0, 1).toUpperCase()}
+                          </span>
+                          <div>
+                            <strong>
+                              {p.name}
+                              {p.id === s.selfId ? " (you)" : ""}
+                            </strong>
+                            <small>
+                              {p.id === s.hostId
+                                ? "Host"
+                                : p.role === "spectator"
+                                  ? "Joins next match"
+                                  : p.role === "facilitator"
+                                    ? "Facilitator"
+                                    : "Player"}
+                              {!p.connected ? " · disconnected" : ""}
+                            </small>
+                          </div>
+                          <span
+                            className={`ready-tag ${p.ready ? "ready" : ""}`}
+                          >
+                            {p.role === "player"
+                              ? p.ready
+                                ? "✓ Ready"
+                                : "Getting ready"
+                              : "Watching"}
+                          </span>
+                          {s.isHost && p.id !== s.selfId && (
+                            <button
+                              className="remove-button"
+                              title={`Remove ${p.name}`}
+                              aria-label={`Remove ${p.name}`}
+                              onClick={() => void send("kick", { id: p.id })}
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                  <div className="invite-box">
+                    {qr && <img src={qr} alt={`Scan to join room ${s.code}`} />}
+                    <div>
+                      <strong>Bring another mind.</strong>
+                      <p>
+                        Share the link or scan from a phone on the same network.
+                      </p>
+                      <input
+                        aria-label="Room invite link"
+                        readOnly
+                        value={shareUrl}
+                        onFocus={(e) => e.target.select()}
+                      />
+                      <button
+                        className="text-button"
+                        onClick={() => void copy(shareUrl)}
+                      >
+                        Copy invite ↗
+                      </button>
+                    </div>
+                  </div>
+                  {lan.length > 1 &&
+                    ["localhost", "127.0.0.1"].includes(location.hostname) && (
+                      <label>
+                        Network address
+                        <select
+                          value={shareBase}
+                          onChange={(e) => setShareBase(e.target.value)}
+                        >
+                          {lan.map((url) => (
+                            <option key={url}>{url}</option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                  <button
+                    className="text-button"
+                    onClick={() =>
+                      window.open(
+                        `/?room=${s.code}&display=1`,
+                        "_blank",
+                        "noopener",
+                      )
+                    }
+                  >
+                    Open shared display ↗
+                  </button>
+                </section>
+              </div>
+              <div className="lobby-actions">
+                {self?.role === "player" && (
+                  <button
+                    className={self.ready ? "secondary" : "primary"}
+                    onClick={() => void send("ready", { ready: !self.ready })}
+                  >
+                    {self.ready ? "✓ You’re ready" : "I’m ready"}
+                  </button>
+                )}
+                {s.isHost && (
+                  <>
+                    <button
+                      className="primary"
+                      disabled={
+                        players.filter((p) => p.connected && p.ready).length <
+                          2 || players.some((p) => p.connected && !p.ready)
+                      }
+                      onClick={() => void send("start")}
+                    >
+                      Start the adventure →
+                    </button>
+                    {self?.role === "player" && (
+                      <button
+                        className="text-button"
+                        onClick={() => void send("start", { practice: true })}
+                      >
+                        Try one unscored practice round
+                      </button>
+                    )}
+                    {self?.role === "player" && (
+                      <button
+                        className="text-button"
+                        onClick={() =>
+                          void send("start", {
+                            practice: true,
+                            family: "focus",
+                          })
+                        }
+                      >
+                        Try Focus clash · unscored
+                      </button>
+                    )}
+                  </>
+                )}
+                {!s.isHost && (
+                  <span className="muted">
+                    Your host starts when everyone is ready.
+                  </span>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="play-layout">
+                <section className="play-stage">
+                  <div className="stage-top">
+                    <span className="phase-pill">
+                      {
+                        {
+                          countdown: "Get ready",
+                          study: "Take it in",
+                          answer: "Recall",
+                          private: "Your own recollection",
+                          discuss: "Put your heads together",
+                          reveal: "The picture comes together",
+                          finished: "A memory worth sharing",
+                          paused: "A little pause",
+                          lobby: "Lobby",
+                        }[s.phase]
+                      }
+                    </span>
+                    {remaining !== null && (
+                      <div
+                        className={`timer ${remaining <= 5 ? "urgent" : ""}`}
+                        role="timer"
+                        aria-label={`${remaining} seconds remaining`}
+                      >
+                        <span>◷</span> {remaining}
+                        <small>s</small>
+                      </div>
+                    )}
+                  </div>
+                  {s.phase === "countdown" && (
+                    <div className="countdown-screen">
+                      <ObjectArt icon={modeCopy[s.settings.mode].icon} />
+                      <span className="eyebrow">{s.title}</span>
+                      <h2>{s.instruction}</h2>
+                      <div className="countdown-number">{remaining}</div>
+                      {s.settings.mode === "team" && (
+                        <p>
+                          First remember privately. Then share what you recall.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {s.phase === "study" && (
+                    <>
+                      <div className="stage-heading">
+                        <h2>{s.title}</h2>
+                        <p>{s.instruction}</p>
+                      </div>
+                      {s.study ? (
+                        <StudyBoard study={s.study} />
+                      ) : (
+                        <div className="waiting-screen">
+                          <ObjectArt icon="book" />
+                          <h2>Each player has a different fragment.</h2>
+                          <p>
+                            Watch the timer. Their memories will meet in a
+                            moment.
+                          </p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {(s.phase === "answer" || s.phase === "private") &&
+                    (self?.role !== "player" ? (
+                      <div className="waiting-screen">
+                        <ObjectArt icon="clock" />
+                        <h2>The crew is remembering.</h2>
+                        <p>
+                          Private answers stay on their devices until the
+                          reveal.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <Deck
+                          questions={s.questions}
+                          selections={picks}
+                          onSelect={select}
+                          disabled={s.locked || !connected}
+                          selfId={s.selfId}
+                        />
+                        {s.locked ? (
+                          <div className="locked-message" role="status">
+                            ✓ Your recollection is locked.{" "}
+                            {s.settings.mode === "frenzy"
+                              ? "The next prompt arrives when the timer ends."
+                              : "Waiting for the rest of the crew."}
+                          </div>
+                        ) : s.settings.mode !== "frenzy" ||
+                          s.phase === "private" ? (
+                          <div className="answer-footer">
+                            <span className="muted">
+                              {Object.keys(picks).length} / {s.questions.length}{" "}
+                              selected · missing answers score 0
+                            </span>
+                            <button
+                              className="primary"
+                              disabled={!connected}
+                              onClick={() =>
+                                void send("answer", { answers: picks })
+                              }
+                            >
+                              {s.phase === "private"
+                                ? "Save my recollection →"
+                                : "Lock my answers →"}
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="rules-note centered">
+                            Choose once to lock your answer. Accuracy earns 100;
+                            speed adds up to 25.
+                          </p>
+                        )}
+                      </>
+                    ))}
+                  {s.phase === "discuss" && (
+                    <>
+                      <div className="stage-heading">
+                        <h2>Different pieces. One picture.</h2>
+                        <p>
+                          {s.captainId === s.selfId
+                            ? "You’re the captain. Use the clues to fill the team board."
+                            : `${s.players.find((p) => p.id === s.captainId)?.name ?? "Your captain"} confirms the board. Choose an option to share your remembered clue.`}
+                        </p>
+                      </div>
+                      <Deck
+                        questions={s.questions}
+                        selections={s.teamBoard}
+                        onSelect={select}
+                        disabled={self?.role !== "player" || !connected}
+                        team={s}
+                        selfId={s.selfId}
+                      />
+                      <div className="answer-footer">
+                        <span className="muted">
+                          {Object.keys(s.teamBoard).length} / 6 team answers
+                          filled
+                        </span>
+                        {s.captainId === s.selfId && (
+                          <button
+                            className="primary"
+                            disabled={
+                              Object.keys(s.teamBoard).length < 6 || !connected
+                            }
+                            onClick={() => void send("lock")}
+                          >
+                            Confirm team answer →
+                          </button>
+                        )}
+                      </div>
+                      <details className="clue-details">
+                        <summary>
+                          Remembered clue cards ({s.proposals.length})
+                        </summary>
+                        <div className="clue-list">
+                          {s.proposals.map((p) => {
+                            const question = s.questions.find(
+                              (q) => q.id === p.questionId,
+                            );
+                            return (
+                              <div key={p.playerId + p.questionId}>
+                                <strong>
+                                  {
+                                    s.players.find((m) => m.id === p.playerId)
+                                      ?.name
+                                  }
+                                </strong>
+                                <span>{question?.text}</span>
+                                <b>
+                                  {
+                                    question?.options.find(
+                                      (o) => o.id === p.optionId,
+                                    )?.label
+                                  }
+                                </b>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </details>
+                    </>
+                  )}
+                  {s.phase === "reveal" && s.result && (
+                    <>
+                      <div className="stage-heading">
+                        <h2>Here’s what we remembered.</h2>
+                        <p>
+                          {s.settings.mode === "team"
+                            ? `The crew recalled ${s.result.recalledFacts} of 6 answers somewhere before discussion. The team recovered ${s.result.teamRecovered} more.`
+                            : "Every recollection adds a piece to the picture."}
+                        </p>
+                      </div>
+                      <div className="reveal-grid">
+                        {s.result.answers.map((a, i) => {
+                          const correct = a.yours === a.correct,
+                            choice = a.question.options.find(
+                              (o) => o.id === a.correct,
+                            );
+                          return (
+                            <div
+                              key={a.question.id}
+                              className={`reveal-tile ${correct ? "right" : ""}`}
+                            >
+                              <span className="eyebrow">
+                                PIECE {i + 1}{" "}
+                                <span>
+                                  {self?.role === "player"
+                                    ? correct
+                                      ? "✓"
+                                      : "×"
+                                    : "◌"}
+                                </span>
+                              </span>
+                              <p>{a.question.text}</p>
+                              {choice?.icon && <ObjectArt icon={choice.icon} />}
+                              <strong>{choice?.label}</strong>
+                              <small>
+                                {self?.role === "player"
+                                  ? `${correct ? "Remembered" : a.yours ? `You chose ${a.question.options.find((o) => o.id === a.yours)?.label}` : "No answer"} · ${a.points} points`
+                                  : `${a.correctCount}/${a.attempts} recalled this privately`}
+                              </small>
+                              <div
+                                className="memory-dots"
+                                aria-label={`${a.correctCount} of ${a.attempts} privately recalled this correctly`}
+                              >
+                                {Array.from({ length: a.attempts }, (_, n) => (
+                                  <i
+                                    className={
+                                      n < a.correctCount ? "filled" : ""
+                                    }
+                                    key={n}
+                                  />
+                                ))}
+                              </div>
+                              {a.source && <Source source={a.source} />}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="science-note">
+                        <span className="eyebrow">
+                          A LITTLE SCIENCE BEHIND THE SCENE
+                        </span>
+                        <p>{s.result.explanation}</p>
+                        <Source source={s.result.source} />
+                      </div>
+                      {s.isHost && (
+                        <button
+                          className="primary"
+                          onClick={() => void send("next")}
+                        >
+                          {s.roundIndex + 1 === s.roundCount
+                            ? "See our memory mosaic →"
+                            : "Next round →"}
+                        </button>
+                      )}
+                      {!s.isHost && s.settings.classroom && (
+                        <p className="muted">
+                          Your host will continue when the group is ready.
+                        </p>
+                      )}
+                    </>
+                  )}
+                  {s.phase === "paused" && (
+                    <div className="waiting-screen">
+                      <ObjectArt icon="mug" />
+                      <h2>We saved your place.</h2>
+                      <p>{s.pauseReason}</p>
+                      {s.isHost && (
+                        <div className="button-row">
+                          <button
+                            className="primary"
+                            onClick={() => void send("next")}
+                          >
+                            Restart this round →
+                          </button>
+                          <button
+                            className="secondary"
+                            onClick={() => void send("rematch")}
+                          >
+                            Return to lobby
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {s.phase === "finished" && s.final && (
+                    <>
+                      <div className="final-heading">
+                        <ObjectArt
+                          icon={s.settings.mode === "team" ? "book" : "star"}
+                        />
+                        <span className="eyebrow">
+                          {s.practice
+                            ? "A LITTLE WARM-UP"
+                            : "YOUR MEMORY MOSAIC"}
+                        </span>
+                        <h1>
+                          {s.practice
+                            ? "Ready for good company."
+                            : s.settings.mode === "team"
+                              ? s.final.teamWin
+                                ? "Look what you remembered together."
+                                : "Every piece taught us something."
+                              : `${s.final.winners.join(" & ")}${s.final.winners.length > 1 ? " share the win." : " takes the win."}`}
+                        </h1>
+                        <p>
+                          {s.practice
+                            ? "Practice complete. Invite another player for a scored match."
+                            : s.settings.mode === "team"
+                              ? `${s.teamCorrect} correct · goal ${s.goal} of ${s.roundCount * 6} · ${s.final.teamWin ? "Team goal reached!" : "Try another strategy next time."}`
+                              : `${s.final.roundsCompleted} rounds. A whole collection of little discoveries.`}
+                        </p>
+                      </div>
+                      <div
+                        className="final-mosaic"
+                        aria-label="One mosaic tile per scored decision"
+                      >
+                        {s.final.mosaic.map((cell, i) => (
+                          <div
+                            key={i}
+                            title={`${cell.text} — ${cell.count}/${cell.total} recalled privately`}
+                            className={
+                              (
+                                self?.role === "player"
+                                  ? cell.correct
+                                  : cell.count > 0
+                              )
+                                ? "remembered"
+                                : "missed"
+                            }
+                          >
+                            <span>
+                              {(
+                                self?.role === "player"
+                                  ? cell.correct
+                                  : cell.count > 0
+                              )
+                                ? "✦"
+                                : "◌"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="comparison-list">
+                        {s.final.comparisons.map((c) => (
+                          <div key={c.condition}>
+                            <span>{c.condition}</span>
+                            <strong>
+                              {c.correct} / {c.total}
+                            </strong>
+                            <div className="comparison-track">
+                              <i
+                                style={{
+                                  width: `${c.total ? (c.correct / c.total) * 100 : 0}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="rules-note centered">
+                        These counts describe this match. They are a starting
+                        point for discussion, not an ability assessment or proof
+                        of an effect.
+                      </p>
+                      {s.isHost ? (
+                        <button
+                          className="primary large"
+                          onClick={() => void send("rematch")}
+                        >
+                          Make another memory →
+                        </button>
+                      ) : (
+                        <p className="muted centered">
+                          Your host can start a fresh match in this room.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </section>
+                <aside className="play-sidebar">
+                  <section className="panel score-panel">
+                    <span className="eyebrow">
+                      {s.settings.mode === "team"
+                        ? "ONE CREW, ONE GOAL"
+                        : "THE CURIOUS CREW"}
+                    </span>
+                    {s.settings.mode === "team" && (
+                      <div className="team-progress">
+                        <strong>
+                          {s.teamCorrect}
+                          <small> / {s.goal}</small>
+                        </strong>
+                        <span>correct answers toward our goal</span>
+                        <div className="comparison-track">
+                          <i
+                            style={{
+                              width: `${Math.min(100, (s.teamCorrect / s.goal) * 100)}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {s.players
+                      .filter((p) => p.role === "player" || p.score > 0)
+                      .sort((a, b) => b.score - a.score)
+                      .map((p) => (
+                        <div className="score-person" key={p.id}>
+                          <span className={`avatar color-${p.color}`}>
+                            {p.name.slice(0, 1).toUpperCase()}
+                          </span>
+                          <span>
+                            <strong>
+                              {p.name}
+                              {p.id === s.selfId ? " · you" : ""}
+                            </strong>
+                            <small>
+                              {!p.connected
+                                ? "Reconnecting"
+                                : ["answer", "private"].includes(s.phase) &&
+                                    p.submitted
+                                  ? "✓ Recollection locked"
+                                  : p.id === s.captainId
+                                    ? "Team captain"
+                                    : "A curious mind"}
+                            </small>
+                          </span>
+                          {s.settings.mode !== "team" && <b>{p.score}</b>}
+                        </div>
+                      ))}
+                  </section>
+                  {s.settings.chat &&
+                    ["lobby", "discuss", "reveal", "finished"].includes(
+                      s.phase,
+                    ) &&
+                    self?.role !== "display" && (
+                      <section className="panel chat-panel">
+                        <span className="eyebrow">ROOM CHAT</span>
+                        <div className="chat-messages" aria-live="polite">
+                          {s.chat.length ? (
+                            s.chat.map((m) => (
+                              <p key={m.id}>
+                                <strong>{m.name}</strong>
+                                <span>{m.text}</span>
+                              </p>
+                            ))
+                          ) : (
+                            <p className="muted">A place to share a thought.</p>
+                          )}
+                        </div>
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            if (message.trim())
+                              void send("chat", { text: message }).then((r) => {
+                                if (r.ok) setMessage("");
+                              });
+                          }}
+                        >
+                          <input
+                            aria-label="Chat message"
+                            value={message}
+                            maxLength={240}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="A little thought…"
+                          />
+                          <button
+                            className="icon-button"
+                            aria-label="Send message"
+                            disabled={!connected || !message.trim()}
+                          >
+                            ↑
+                          </button>
+                        </form>
+                      </section>
+                    )}
+                </aside>
+              </div>
+            </>
+          )}
+        </main>
+      )}
+      {createOpen && (
+        <div className="modal-backdrop">
+          <section
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Create a room"
+          >
+            <button
+              className="modal-close"
+              onClick={() => setCreateOpen(false)}
+              aria-label="Close create room"
+            >
+              ×
+            </button>
+            <span className="eyebrow">MAKE A LITTLE ROOM FOR DISCOVERY</span>
+            <h2>Your adventure starts here.</h2>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void enter("create", {
+                  name: name.trim(),
+                  facilitator,
+                  settings,
+                  customPack: customPacks.find((p) => p.id === settings.packId),
+                });
+              }}
+            >
+              <label>
+                Your name
+                <input
+                  required
+                  maxLength={20}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="A curious mind"
+                  autoFocus
+                />
+              </label>
+              <SettingsPanel
+                value={settings}
+                onChange={setSettings}
+                packs={allPacks}
+              />
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={facilitator}
+                  onChange={(e) => setFacilitator(e.target.checked)}
+                />{" "}
+                I’ll facilitate without taking a player seat
+              </label>
+              <button className="primary full" disabled={!connected}>
+                Create {MODE_NAMES[settings.mode]} room →
+              </button>
+            </form>
+          </section>
+        </div>
+      )}
+      {studioOpen && (
+        <Studio
+          packs={customPacks}
+          builtIn={packs}
+          onChoose={(id) => {
+            if (snapshot?.phase === "lobby" && snapshot.isHost)
+              changeSettings({ ...snapshot.settings, packId: id });
+            else {
+              setSettings((v) => ({ ...v, packId: id }));
+              notify("Starter selected for your next room.");
+            }
+          }}
+          onDelete={(id) => {
+            const next = customPacks.filter((p) => p.id !== id);
+            setCustomPacks(next);
+            keep("localStorage", "mind-mosaic-packs-v1", next);
+          }}
+          onClose={() => setStudioOpen(false)}
+          onSave={(p) => {
+            const next = [...customPacks.filter((old) => old.id !== p.id), p];
+            setCustomPacks(next);
+            keep("localStorage", "mind-mosaic-packs-v1", next);
+            notify(
+              "Saved on this device. Choose your collection when creating a room.",
+            );
+          }}
+        />
+      )}
+      {rulesOpen && (
+        <div className="modal-backdrop">
+          <section
+            className="modal rules-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="How to play"
+          >
+            <button
+              className="modal-close"
+              onClick={() => setRulesOpen(false)}
+              aria-label="Close rules"
+            >
+              ×
+            </button>
+            <span className="eyebrow">A QUICK FIELD GUIDE</span>
+            <h2>Remember. Reveal. Discover.</h2>
+            <ol>
+              <li>
+                <strong>Join your crew.</strong> Two to eight players enter a
+                room code on their own devices. A host can facilitate or play.
+              </li>
+              <li>
+                <strong>Take it in.</strong> Study a scene, a sequence, or six
+                little facts. The material disappears before recall.
+              </li>
+              <li>
+                <strong>Make your choices.</strong> Recall Rally awards 100 per
+                correct answer. Focus Frenzy adds up to 25 for speed. Missing
+                and wrong answers score zero; ties share the win.
+              </li>
+              <li>
+                <strong>Or remember together.</strong> In Team Mosaic, remember
+                your fragment privately, then share clue cards. The captain
+                fills and confirms six team answers. The default goal is 26
+                correct out of 36.
+              </li>
+              <li>
+                <strong>See the picture.</strong> After each round, compare
+                recollections and explore a short explanation. Six rounds are
+                the default, with four or ten available.
+              </li>
+            </ol>
+            <p className="rules-note">
+              You learn course facts before recalling them, so newcomers can
+              play. These are playful demonstrations, not scientific
+              measurements of ability. Try an unscored practice round from your
+              room’s lobby.
+            </p>
+            <button className="primary" onClick={() => setRulesOpen(false)}>
+              Got it. Let’s remember →
+            </button>
+          </section>
+        </div>
+      )}
+    </div>
+  );
 }
-createRoot(document.getElementById('root')!).render(<App/>);
+createRoot(document.getElementById("root")!).render(<App />);

@@ -1,0 +1,18 @@
+# Free preview. Single instance; local checkpoints are ephemeral on this plan.
+services:
+  - type: web
+    name: mind-mosaic
+    runtime: node
+    plan: free
+    repo: https://github.com/ProgrammingWithYagle/Cognitive-Science-Memory-Game
+    branch: codex/mind-mosaic
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: node dist/server.cjs
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DATA_DIR
+        value: .data
